@@ -68,7 +68,7 @@ def post(request, year, month, day, slug):
 
 def tag_index(request):
     c = Context(request, {
-        'tags': categories.get_list(),
+        'tags': categories.get_list(order_by=['name']),
     })
     t = template_loader.get_template('blog/tags')
     return HttpResponse(t.render(c), xhtml_content_type)
