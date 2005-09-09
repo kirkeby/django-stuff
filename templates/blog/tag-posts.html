@@ -4,7 +4,11 @@
 <h1>Posts tagged {{ tag.name }}</h1>
 <ul>
 {% for post in posts %}
-<li><a href='{{ post.get_absolute_url }}'>{{ post.title }}</a></li>
+<li><strong><a href='{{ post.get_absolute_url }}'>{{ post.title }}</a></strong><br />
+    <em>Posted: {{ post.posted|timesince }} ago</em><br />
+    {{ post.content|striptags|fix_ampersands|truncatewords:"30" }}
+    ({{ post.content|wordcount }} words)
+</li>
 {% endfor %}
 </ul>
 {% endblock %}
