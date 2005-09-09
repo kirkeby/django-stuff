@@ -8,7 +8,7 @@
 {% block content %}
 <div class='blurt'>
 <h1>{{ post.title }}</h1>
-<p class='timestamp'>{{ post.posted|date:"F j, Y H:i" }} GMT</p>
+<p class='timestamp' title='{{ post.posted|date:"F j, Y H:i O" }}'>Posted {{ post.posted|timesince }} ago</p>
 
 {{ post.content|markdown }}
 
