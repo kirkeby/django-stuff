@@ -17,6 +17,11 @@ class Category(meta.Model):
     def get_absolute_url(self):
         return '/blog/tags/%s/' % self.slug
 
+    def get_latest_post(self):
+        p = self.get_post_list(order_by=['-posted'], limit=1)
+        if p:
+            return p[0]
+
     def __repr__(self):
         return self.name
 
