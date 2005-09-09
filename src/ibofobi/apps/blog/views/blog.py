@@ -1,6 +1,7 @@
 from django.core import template
 from django.core import template_loader
 from django.conf.settings import TEMPLATE_DIRS
+from django.conf.settings import ADMIN_URL
 from django.core.extensions import DjangoContext as Context
 from django.models.blog import posts
 from django.models.blog import categories
@@ -66,6 +67,7 @@ def post(request, year, month, day, slug):
 
     c = Context(request, {
         'post': p,
+        'admin_url': ADMIN_URL,
     })
     t = template_loader.get_template('blog/post')
     return HttpResponse(t.render(c), xhtml_content_type)
