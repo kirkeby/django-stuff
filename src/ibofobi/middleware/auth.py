@@ -11,5 +11,5 @@ class AdminUserRequired(admin.AdminUserRequired):
         property."""
 
         if getattr(view_func, 'admin_required', 0):
-            return super(self, admin.AdminUserRequired).process_view(request, view, param_dict)
+            return admin.AdminUserRequired.process_view(self, request, view_func, param_dict)
 
