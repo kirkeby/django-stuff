@@ -1,4 +1,4 @@
-{% extends "base" %}
+{% extends "blog" %}
 {% load markdown %}
 {% block title %}Latest Posts [about:me]{% endblock %}
 {% block content %}
@@ -6,7 +6,7 @@
 <div class='blurt'>
 <h1><a href='{{ post.get_absolute_url }}'
        title='Permanent link to "{{ post.title|striptags }}"'>{{ post.title }}</a></h1>
-<p class='timestamp'>{{ post.posted|date:"F j, Y H:i" }} GMT</p>
+<p class='timestamp' title='{{ post.posted|date:"F j, Y H:i" }} GMT'>Posted {{ post.posted|timesince }} ago</p>
 {{ post.content|markdown }}
 </div>
 {% endfor %}
