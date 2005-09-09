@@ -10,8 +10,6 @@ class AdminUserRequired(admin.AdminUserRequired):
         before allowing any access to views with the admin_required
         property."""
 
-        if getattr(view_func, 'admin_required'):
+        if getattr(view_func, 'admin_required', 0):
             return super(self, admin.AdminUserRequired).process_view(request, view, param_dict)
-        else:
-            return view_func
 
