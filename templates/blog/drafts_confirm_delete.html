@@ -1,0 +1,10 @@
+{% extends "blog" %}
+
+{% block title %}Really delete "{{ object.title|striptags|fix_ampersands }}" [about:me]{% endblock %}
+
+{% block content %}
+<h1>Really delete "{{ object.title|striptags|fix_ampersands }}"</h1>
+<form method='post'>
+<input type='submit' value='Yes!' />
+</form>
+{% endblock %}

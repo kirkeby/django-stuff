@@ -1,4 +1,5 @@
 from django.core import meta
+from django.conf.settings import MEDIA_ROOT
 
 class Category(meta.Model):
     name = meta.CharField('name', maxlength=30)
@@ -78,9 +79,13 @@ class Draft(meta.Model):
     class META:
         admin = meta.Admin(
             fields = (
-                (None, {'fields': ('title', 'categories', 'content')}),
+                (None, {'fields': ('title', 'categories', 'content'),
+                        'js': [MEDIA_ROOT + '/blog-draft-admin.js']}),
             ),
         )
+
+    def get_absolute_url(self):
+        return '/blog/admin/drafts/view/%d/' % self.id
 
     def __repr__(self):
         return self.title

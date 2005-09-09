@@ -1,0 +1,11 @@
+{% extends "blog" %}
+
+{% block title %}Drafts [about:me]{% endblock %}
+
+{% block content %}
+<ul>
+{% for draft in object_list %}
+<li><a href='update/{{ draft.id }}/'>{{ draft.title }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

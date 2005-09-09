@@ -4,9 +4,13 @@ from django.conf.settings import TEMPLATE_DIRS
 from django.core.extensions import DjangoContext as Context
 from django.models.blog import posts
 from django.models.blog import categories
+from django.models.blog import drafts
 from django.utils.httpwrappers import HttpResponse
+from django.utils.httpwrappers import HttpResponseRedirect
 from django.core.exceptions import Http404
 from django.core.db import db
+from django.core.defaultfilters import slugify
+from django.conf import settings
 
 import os
 import datetime
@@ -129,3 +133,38 @@ def archive_day(request, year, month, day):
     })
     t = template_loader.get_template('blog/archive-day')
     return HttpResponse(t.render(c), xhtml_content_type)
+
+def preview_draft(request, object_id):
+    try:
+        draft = drafts.get_object(pk=int(object_id))
+    except drafts.DraftDoesNotExist:
+        raise Http404
+
+    draft.posted = datetime.datetime.now
+
+    c = Context(request, {
+        'post': draft,
+        'is_draft': True,
+    })
+    t = template_loader.get_template('blog/post')
+    return HttpResponse(t.render(c), xhtml_content_type)
+preview_draft.admin_required = True
+
+def publish_draft(request, object_id):
+    try:
+        draft = drafts.get_object(pk=int(object_id))
+    except drafts.DraftDoesNotExist:
+        raise Http404
+
+    post = posts.Post(title=draft.title, content=draft.content)
+    # post.tag is set by Post._pre_save
+    post.slug = slugify(draft.title, None)
+    post.posted = datetime.datetime.now()
+    post.save()
+    post.set_categories([ c.id for c in draft.get_category_list()])
+    post.save()
+
+    draft.delete()
+
+    return HttpResponseRedirect('%s/blog/posts/%d/' % (settings.ADMIN_URL, post.id))
+preview_draft.admin_required = True
