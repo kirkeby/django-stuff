@@ -28,7 +28,7 @@ def atom(request):
         path = os.path.join(td, 'blog/atom.xml')
         if os.path.exists(path):
             t = template.Template(open(path).read())
-    return HttpResponse(t.render(c), 'application/atom+xml; charset=utf-8')
+    return HttpResponse(t.render(c), 'application/xml; charset=utf-8')
 
 def post(request, year, month, day, slug):
     try:
