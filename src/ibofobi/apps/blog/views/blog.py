@@ -64,14 +64,14 @@ def post(request, year, month, day, slug):
         'post': p,
     })
     t = template_loader.get_template('blog/post')
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c), xhtml_content_type)
 
 def tag_index(request):
     c = Context(request, {
         'tags': categories.get_list(),
     })
     t = template_loader.get_template('blog/tags')
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c), xhtml_content_type)
 
 def archive_index(request):
     c = db.cursor()
@@ -88,7 +88,7 @@ def archive_index(request):
                     for date, in rows ],
     })
     t = template_loader.get_template('blog/archive-index')
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c), xhtml_content_type)
 
 def archive_year(request, year):
     c = db.cursor()
@@ -107,7 +107,7 @@ def archive_year(request, year):
                     for date, in rows ],
     })
     t = template_loader.get_template('blog/archive-year')
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c), xhtml_content_type)
 
 def archive_month(request, year, month):
     c = Context(request, {
@@ -117,7 +117,7 @@ def archive_month(request, year, month):
                                 order_by=['posted']),
     })
     t = template_loader.get_template('blog/archive-month')
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c), xhtml_content_type)
 
 def archive_day(request, year, month, day):
     c = Context(request, {
@@ -128,4 +128,4 @@ def archive_day(request, year, month, day):
                                 order_by=['posted']),
     })
     t = template_loader.get_template('blog/archive-day')
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c), xhtml_content_type)
