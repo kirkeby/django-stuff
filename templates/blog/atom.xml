@@ -9,6 +9,15 @@
     <author><name>Sune Kirkeby</name></author>
     <modified>{{ posts.0.posted|date:"Y-m-d" }}T{{ posts.0.posted|date:"H:i:s+00:00" }}</modified>
 
+    <info mode="xml" type="application/xhtml+xml">
+        <div xmlns="http://www.w3.org/1999/xhtml">This is a syndicated
+        feed, designed to be read in a syndicated feed reader. See <a
+        href='http://purl.org/net/syndication/subscribe/?atom=http://ibofobi.dk/blog/feeds/latest/'>purl
+        subscription service</a> for help. Below you can see a short
+        summary of the posts in this feed, you can find the posts in
+        <a href='http://ibofobi.dk/blog/'>my blog</a>.</div>
+    </info>
+
     {% for post in posts %}
     <entry>
         <id>{{ post.tag }}</id>
@@ -19,6 +28,9 @@
         <title type='application/xhtml+xml'>
             <div xmlns='http://www.w3.org/1999/xhtml'>{{ post.title }}</div>
         </title>
+        <summary type='application/xhtml+xml'>
+            {{ post.content|striptags|fix_ampersands|truncatewords:"30" }}
+        </summary>
         <content type='application/xhtml+xml'>
             <div xmlns='http://www.w3.org/1999/xhtml'>
                 {{ post.content|markdown }}
