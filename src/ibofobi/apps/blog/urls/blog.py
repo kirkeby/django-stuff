@@ -2,7 +2,8 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('ibofobi.apps.blog.views.blog',
     (r'^$', 'latest'),
-    (r'^atom/$', 'atom'),
+    (r'^feeds/latest/$', 'latest', {'format': 'atom'}),
+    (r'^feeds/tags/(?P<slug>[\w-]+)/$', 'tag_posts', {'format': 'atom', 'limit': 5}),
     (r'^tags/$', 'tag_index'),
     (r'^tags/(?P<slug>[\w-]+)/$', 'tag_posts'),
     (r'^archive/$', 'archive_index'),

@@ -11,24 +11,45 @@ from django.core.db import db
 import os
 import datetime
 
-content_type = 'application/xhtml+xml; charset=utf-8'
+xhtml_content_type = 'application/xhtml+xml; charset=utf-8'
+atom_content_type = 'application/xml; charset=utf-8'
 
-def latest(request):
-    c = Context(request, {
-        'posts': posts.get_list(limit=5, order_by=['-posted']),
-    })
-    t = template_loader.get_template('blog/latest')
-    return HttpResponse(t.render(c), content_type)
-
-def atom(request):
-    c = Context(request, {
-        'posts': posts.get_list(limit=5, order_by=['-posted']),
-    })
+def __load_atom_template():
     for td in TEMPLATE_DIRS:
         path = os.path.join(td, 'blog/atom.xml')
         if os.path.exists(path):
             t = template.Template(open(path).read())
-    return HttpResponse(t.render(c), 'application/xml; charset=utf-8')
+    return t
+
+def latest(request, format=None):
+    c = Context(request, {
+        'posts': posts.get_list(limit=5, order_by=['-posted']),
+    })
+    if format == 'atom':
+        t = __load_atom_template()
+        ct = atom_content_type
+    else:
+        t = template_loader.get_template('blog/latest')
+        ct = xhtml_content_type
+    return HttpResponse(t.render(c), ct)
+
+def tag_posts(request, slug, format=None, limit=None):
+    try:
+        category = categories.get_object(slug__exact=slug)
+    except categories.CategoryDoesNotExist:
+        raise Http404
+
+    c = Context(request, {
+        'tag': category,
+        'posts': category.get_post_list(order_by=['-posted'], limit=limit),
+    })
+    if format == 'atom':
+        t = __load_atom_template()
+        ct = atom_content_type
+    else:
+        t = template_loader.get_template('blog/tag-posts')
+        ct = xhtml_content_type
+    return HttpResponse(t.render(c), ct)
 
 def post(request, year, month, day, slug):
     try:
@@ -50,19 +71,6 @@ def tag_index(request):
         'tags': categories.get_list(),
     })
     t = template_loader.get_template('blog/tags')
-    return HttpResponse(t.render(c), content_type)
-
-def tag_posts(request, slug):
-    try:
-        category = categories.get_object(slug__exact=slug)
-    except categories.CategoryDoesNotExist:
-        raise Http404
-
-    c = Context(request, {
-        'tag': category,
-        'posts': category.get_post_list(order_by=['-posted']),
-    })
-    t = template_loader.get_template('blog/tag-posts')
     return HttpResponse(t.render(c), content_type)
 
 def archive_index(request):

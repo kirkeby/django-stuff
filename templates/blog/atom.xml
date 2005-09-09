@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
+<?xml-stylesheet href="http://media.ibofobi.dk/atom.css" type="text/css"?>
 
 {% load markdown %}
 <feed version="0.3" xmlns="http://purl.org/atom/ns#" xml:lang='en'>
