@@ -1,0 +1,25 @@
+{% extends "base" %}
+{% load markdown %}
+{% block title %}{{ post.title|striptags }} [about:me]{% endblock %}
+{% block extrahead %}
+<link rel='next' href='{{ post.get_next_post.get_absolute_url }}' />
+<link rel='previous' href='{{ post.get_previous_post.get_absolute_url }}' />
+{% endblock %}
+{% block content %}
+<div class='blurt'>
+<h1>{{ post.title }}</h1>
+<p class='timestamp'>{{ post.posted|date:"F j, Y H:i" }} GMT</p>
+
+{{ post.content|markdown }}
+
+<p class='tags'>
+{% if post.get_category_list %}
+You have been reading the rant "{{ post.title }}", which I tagged with 
+{% for category in post.get_category_list %}
+    <a title='Posts tagged "{{ category.name }}"'
+       href='{{ category.get_absolute_url }}'>{{ category.name }}</a>{% if forloop.last %}.{% else %},{% endif %}
+{% endfor %}
+{% endif %}
+</p>
+</div>
+{% endblock %}

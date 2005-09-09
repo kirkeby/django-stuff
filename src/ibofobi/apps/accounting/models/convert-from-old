@@ -1,0 +1,49 @@
+#!/usr/bin/python
+
+import sys
+
+person_mapping = {
+    'sune': 'kirkeby@diku.dk',
+    'tanja': 'tanja@diku.dk',
+    'spitfire': 'spitfire@diku.dk',
+    'stephans': 'marc@diku.dk',
+    'thomas': '__thomas__@cbb.dk',
+    'ludvig': 'ludvig@diku.dk',
+}
+
+ins_post = '''INSERT INTO accounting_posts(account, depositor, "when", description)
+                          (SELECT m.account_id, m.person_id,
+                                  to_timestamp('%s', 'DD-MM-YYYY'), '%s'
+                           FROM accounting_accounts_members m,
+                                accounting_persons p
+                           WHERE m.person_id=p.id AND p.email='%s');
+            '''
+ins_invoice = '''INSERT INTO accounting_invoices(post, victim, amount)
+                            (SELECT MAX(accounting_posts.id), MAX(m.person_id), %f
+                             FROM accounting_accounts_members m,
+                                  accounting_persons p, accounting_posts
+                             WHERE m.person_id=p.id AND p.email='%s');'''
+                             
+
+sys.stdin.readline()
+for line in sys.stdin:
+    print '--', line,
+
+    fields = line.strip().split(None, 4)
+    print ins_post % (fields[0], fields[4], person_mapping[fields[2]])
+
+    count = 0
+    if ',' in fields[3]:
+        victims = fields[3].split(',')
+    else:
+        victims = [fields[3]]
+    for i, victim in enumerate(victims):
+        victim = victims[i] = victim.split('=')
+        victim[1] = int(victim[1])
+        count = count + victim[1]
+
+    for i, victim in enumerate(victims):
+        print ins_invoice % (victim[1] * float(fields[1]) / count,
+                             person_mapping[victim[0]])
+
+    print

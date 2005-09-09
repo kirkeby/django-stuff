@@ -1,0 +1,90 @@
+{% extends "bare" %}
+
+{% block title %}Month of {{ year }} / {{ month }}{% endblock %}
+
+{% block extrahead %}
+<style class='text/css'>
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+td {
+    border: 1px solid gray;
+    padding: 1px;
+    height: 8em;
+    width:  8em;
+    vertical-align: top;
+}
+.today {
+    border: 2px solid blue !important;
+    padding: 0;
+}
+
+.add-event {
+    clear: after;
+    margin-bottom: 2px;
+}
+.add-event a {
+    text-decoration: none;
+}
+.day-of-month {
+    float: right;
+}
+
+.event {
+    background-color: #dd4;
+    margin: 2px;
+    border: 1px solid #dd0;
+}
+.recurring {
+    background-color: white;
+    border: 1px solid white;
+}
+.birthday {
+    background-color: #99f;
+    border: 1px solid #99f;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<table class='month_matrix'>
+<thead>
+    <tr>
+        <th>Monday</th>
+        <th>Tuesday</th>
+        <th>Wednesday</th>
+        <th>Thursday</th>
+        <th>Friday</th>
+        <th>Saturday</th>
+        <th>Sunday</th>
+    </tr>
+</thead>
+<tbody>
+    {% for week in matrix %}
+    <tr>
+        {% for day in week %}
+        <td {% if day.today %}class='today'{% endif %}>
+        <div class='day-of-month'>{{ day.month }}/{{ day.day }}</div>
+        <div class='add-event'><strong><a href='../{{ day.month }}/{{ day.day }}/create/'>+</a></strong></div>
+        {% for event in day.recurringevents %}
+            <div class='recurring event {{ event.get_eventclass_list|join:" " }}'>{{ event.title }}
+            {% if a_perms.calendar.change_recurringevent %}
+                <a href='http://admin.ibofobi.dk/calendar/reucurringevents/{{ event.id }}/'>edit</a>
+            {% endif %}
+            </div>
+        {% endfor %}
+        {% for event in day.events %}
+            <div class='event'>{{ event.title }}
+            {% if a_perms.calendar.change_event %}
+                <a href='http://admin.ibofobi.dk/calendar/events/{{ event.id }}/'>edit</a>
+            {% endif %}
+            </div>
+        {% endfor %}
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endblock %}

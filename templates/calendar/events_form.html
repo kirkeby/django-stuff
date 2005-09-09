@@ -1,0 +1,39 @@
+{% extends "base" %}
+
+{% block title %}
+    {% if object %}
+        Edit event "{{ object.title }}"
+    {% else %}
+        Create a new event
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+{% if object %}
+    <p><a href='../../delete/{{ object.id }}/'>Delete event</a></p>
+{% endif %}
+
+<form method='post' action='.'>
+<p>
+    <label for='id_title'>Title: </label> {{ form.title }}
+    {% if form.title.errors %}
+        [ {{ form.title.errors|join:", " }} ]
+    {% endif %}
+</p>
+<p>
+    <label for='id_start_date'>start_date: </label> {{ form.start_date }}
+    {% if form.start_date.errors %}
+        [ {{ form.start_date.errors|join:", " }} ]
+    {% endif %}
+</p>
+<p>
+    <label for='id_end_date'>end_date: </label> {{ form.end_date }}
+    {% if form.end_date.errors %}
+        [ {{ form.end_date.errors|join:", " }} ]
+    {% endif %}
+</p>
+
+<input type='submit' />
+</form>
+
+{% endblock %}

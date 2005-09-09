@@ -1,0 +1,10 @@
+{% extends "base" %}
+{% block title %}Archive for {{ year }} [about:me]{% endblock %}
+{% block content %}
+<h1>Archive for {{ year }}</h1>
+<ul>
+{% for month in months %}
+    <li><a href='{{ month.date.month }}/'>{{ month.date|date:"F" }}</a>; {{ month.posts }} posts.</li>
+{% endfor %}
+</ul>
+{% endblock %}

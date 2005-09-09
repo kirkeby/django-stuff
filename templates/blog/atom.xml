@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<feed version="0.3" xmlns="http://purl.org/atom/ns#" xml:lang='en'>
+    <title>about:me</title>
+    <link rel='alternate' type='text/html'
+          href='http://ibofobi.dk/blog/' />
+    <author><name>Sune Kirkeby</name></author>
+    <modified>{{ posts.0.posted|date:"Y-m-d" }}T{{ posts.0.posted|date:"H:i:s+00:00" }}</modified>
+
+    {% for post in posts %}
+    <entry>
+        <id>{{ post.tag }}</id>
+        <issued>{{ post.posted|date:"Y-m-d" }}T{{ post.posted|date:"H:i:s+00:00" }}</issued>
+        <modified>{{ post.posted|date:"Y-m-d" }}T{{ post.posted|date:"H:i:s+00:00" }}</modified>
+        <link rel='alternate' type='text/html'
+              href='{{ post.get_absolute_url }}' />
+        <title type='application/xhtml+xml'>
+            <div xmlns='http://www.w3.org/1999/xhtml'>{{ post.title }}</div>
+        </title>
+        <content type='application/xhtml+xml'>
+            <div xmlns='http://www.w3.org/1999/xhtml'>
+                {{ post.content|markdown }}
+            </div>
+        </content>
+    </entry>
+    {% endfor %}
+</feed>

@@ -1,0 +1,13 @@
+{% extends "base" %}
+
+{% block title %} Delete "{{ object.title }}" {% endblock %}
+
+{% block content %}
+Really delete event "{{ object.title }}"?
+<form method='post' action='.'>
+<input type='hidden' name='post_delete_redirect'
+       value='/calendar/%(year)d/%(month)d/' />
+<input type='submit' value='Yes!' />
+</form>
+
+{% endblock %}

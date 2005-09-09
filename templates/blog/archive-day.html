@@ -1,0 +1,10 @@
+{% extends "base" %}
+{% block title %}Archive for {{ month }} {{ day }}, {{ year }} [about:me]{% endblock %}
+{% block content %}
+<h1>Archive for {{ month }} {{ day }}, {{ year }}</h1>
+<ul>
+{% for post in posts %}
+    <li><a href='{{ post.get_absolute_url }}'>{{ post.title }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}
