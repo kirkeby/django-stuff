@@ -1,4 +1,5 @@
 {% extends "blog" %}
+{% load formhelpers %}
 
 {% block extrahead %}
 <style type='text/css'>
@@ -10,6 +11,9 @@ label {
     background-color: #f88;
     border: thin solid black;
     margin: 1em 0 0.2em 0;
+}
+textarea {
+    width: 80%;
 }
 </style>
 {% endblock %}
@@ -34,7 +38,7 @@ label {
     {% if form.content.errors %}{% for error in form.content.errors %}
     <div class='form-errors'>{{ error }}</div>
     {% endfor %}{% endif %}
-    <label for='id_content'>Content: </label> {{ form.content }}
+    <label for='id_content'>Content: </label> {{ form.content|wrap:"off" }}
 </p>
 <p>
     {% if form.categories.errors %}{% for error in form.categories.errors %}
