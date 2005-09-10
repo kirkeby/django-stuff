@@ -1,0 +1,15 @@
+{% extends "base" %}
+{% block title %}Feeds [about:me]{% endblock %}
+{% block content %}
+<h1>Feeds</h1>
+
+<p>This is a list of the (atom) feeds I publish. There is the <a
+href='latest/' title='Atom feed for latest posts'>normal
+feed</a>, which contains the latest posts from all categories. There are
+also per-category feeds:</p>
+<ul>
+{% for tag in tags %}
+<li><a href='tags/{{ tag.slug }}/'>{{ tag.name }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

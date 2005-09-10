@@ -12,7 +12,8 @@
     <info mode="xml" type="application/xhtml+xml">
         <div xmlns="http://www.w3.org/1999/xhtml">This is a syndicated
         feed, designed to be read in a syndicated feed reader. See <a
-        href='http://purl.org/net/syndication/subscribe/?atom=http://ibofobi.dk/blog/feeds/latest/'>purl
+        href='http://purl.org/net/syndication/subscribe/?atom=http://ibofobi.dk/blog/feeds/latest/'
+        onclick="location.href='http://purl.org/net/syndication/subscribe/?atom=' + location.href; return false;">purl
         subscription service</a> for help. Below you can see a short
         summary of the posts in this feed, you can find the posts in
         <a href='http://ibofobi.dk/blog/'>my blog</a>.</div>

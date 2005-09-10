@@ -170,3 +170,10 @@ def publish_draft(request, object_id):
 
     return HttpResponseRedirect('%s/blog/posts/%d/' % (settings.ADMIN_URL, post.id))
 preview_draft.admin_required = True
+
+def feeds_index(request):
+    c = Context(request, {
+        'tags': categories.get_list(order_by=['-name']),
+    })
+    t = template_loader.get_template('blog/feeds_index')
+    return HttpResponse(t.render(c), xhtml_content_type)
