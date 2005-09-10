@@ -12,7 +12,7 @@ import logging
 from django.core.handlers.wsgi import WSGIHandler
 
 MAX_HEAD_LENGTH = 1024
-MAX_CONTENT_LENGTH = 1024
+MAX_CONTENT_LENGTH = 1024 * 1024
 
 log = logging.getLogger()
 
