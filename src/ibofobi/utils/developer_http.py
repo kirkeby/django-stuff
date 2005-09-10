@@ -8,6 +8,7 @@ import warnings
 import errno
 from cStringIO import StringIO
 import logging
+import traceback
 
 from django.core.handlers.wsgi import WSGIHandler
 
@@ -216,6 +217,7 @@ class SocketTransport:
 
     def close(self):
         self.file.flush()
+        self.file.close()
         self.sock.close()
 
 if __name__ == '__main__':
