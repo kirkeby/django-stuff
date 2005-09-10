@@ -218,7 +218,7 @@ class SocketTransport:
         self.file.flush()
         self.sock.close()
 
-if __name__ == 'main':
+if __name__ == '__main__':
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter())
     log.addHandler(handler)
