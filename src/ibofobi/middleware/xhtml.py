@@ -15,4 +15,9 @@ class XHTMLAsHTMLMiddleware:
                 ct = ct.replace('application/xhtml+xml', 'text/html')
                 response['Content-Type'] = ct
 
+            if response.has_header('Vary'):
+                response['Vary'] = response['Vary'] + ', Accept'
+            else:
+                response['Vary'] = 'Accept'
+
         return response
