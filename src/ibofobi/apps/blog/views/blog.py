@@ -6,12 +6,15 @@ from django.core.extensions import DjangoContext as Context
 from django.models.blog import posts
 from django.models.blog import categories
 from django.models.blog import drafts
+from django.models.blog import comments
 from django.utils.httpwrappers import HttpResponse
 from django.utils.httpwrappers import HttpResponseRedirect
 from django.core.exceptions import Http404
 from django.core.db import db
 from django.core.defaultfilters import slugify
 from django.conf import settings
+
+from ibofobi.apps.blog.templatetags import safe_markdown
 
 import os
 import datetime
@@ -177,3 +180,70 @@ def feeds_index(request):
     })
     t = template_loader.get_template('blog/feeds_index')
     return HttpResponse(t.render(c), xhtml_content_type)
+
+def preview_comment(request, year, month, day, slug):
+    try:
+        p = posts.get_object(posted__year=int(year),
+                             posted__month=int(month),
+                             posted__day=int(day),
+                             slug__exact=slug)
+    except posts.PostDoesNotExist:
+        raise Http404()
+
+    if request.POST.has_key('comment'):
+        comment = comments.get_object(pk=int(request.POST['comment']))
+
+        if not p.id == comment.post_id:
+            raise Http404()
+        if comment.previewed:
+            raise Http404()
+    else:
+        comment = comments.Comment(post=p, name=request.POST['name'])
+
+    comment.user = request.user
+    comment.previewed = False
+    if request.META.has_key('HTTP_X_FORWARDED_FOR'):
+        comment.ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
+    elif request.META.has_key('REMOTE_ADDR'):
+        comment.ip_address = request.META.get('REMOTE_ADDR')
+    else:
+        comment.ip_address = '0.0.0.0'
+    
+    comment.email = request.POST['email']
+    comment.url = request.POST['url']
+    comment.content = safe_markdown.render(request.POST['content'])
+
+    comment.save()
+
+    c = Context(request, {
+        'post': p,
+        'markdown_content': request.POST['content'],
+        'comment': comment,
+    })
+    t = template_loader.get_template('blog/preview-comment')
+    ct = xhtml_content_type
+    return HttpResponse(t.render(c), ct)
+
+def post_comment(request, year, month, day, slug):
+    try:
+        p = posts.get_object(posted__year=int(year),
+                             posted__month=int(month),
+                             posted__day=int(day),
+                             slug__exact=slug)
+    except posts.PostDoesNotExist:
+        raise Http404()
+
+    try:
+        c = comments.get_object(pk=int(request.POST.get('comment', '-1')))
+    except comments.CommentDoesNotExist:
+        raise Http404()
+
+    if not p.id == c.post_id:
+        raise Http404()
+    if c.previewed:
+        raise Http404()
+
+    c.previewed = True
+    c.save()
+
+    return HttpResponseRedirect(c.get_absolute_url())

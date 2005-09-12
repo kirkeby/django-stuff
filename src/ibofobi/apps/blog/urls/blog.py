@@ -12,5 +12,7 @@ urlpatterns = patterns('ibofobi.apps.blog.views.blog',
     (r'^archive/(?P<year>\d+)/(?P<month>\d+)/$', 'archive_month'),
     (r'^archive/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/$', 'archive_day'),
     (r'^archive/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/(?P<slug>[\w-]+)/$', 'post'),
+    (r'^archive/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/(?P<slug>[\w-]+)/preview-comment/$', 'preview_comment'),
+    (r'^archive/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/(?P<slug>[\w-]+)/post-comment/$', 'post_comment'),
     (r'^admin/', include('ibofobi.apps.blog.urls.admin')),
 )

@@ -1,0 +1,39 @@
+{% extends "blog" %}
+{% block title %}Preview Comment [about:me]{% endblock %}
+{% block content %}
+<h2>Comment Preview</h2>
+<div class='comment'>
+<span class='byline'>Posted now by
+{% if comment.url %}<a href="{{ comment.url|escape }}" rel='nofollow'>{% endif %}{{ comment.name|escape }}{% if comment.url %}</a>{% endif %}
+</span>
+{{ comment.content }}
+</div>
+
+<h2>Post Comment</h2>
+<form method='post' action='../post-comment/'>
+<input type='hidden' name='comment' value='{{ comment.id }}' />
+<input type='submit' value='Post Comment' />
+</form>
+
+<h2>Edit Comment</h2>
+<div style='width: 17em; float: right;'>Your comment can contain a subset
+of <a href='http://daringfireball.net/projects/markdown/'>Markdown</a>;
+<nobr><code>[A Link](http://example.com/)</code></nobr>, <code>*strong*</code>,
+<code>_emphasis_</code>, <nobr><code>&gt; blockquote</code></nobr>,
+<code>`code`</code>, code blocks and normal paragraphs.</div>
+
+<form method='post'>
+<input type='hidden' name='comment' value='{{ comment.id }}' />
+<label for='id_name'>Your Name (Required):</label><br />
+<input id='id_name' name='name' value='{{ comment.name|escape }}' /><br />
+<label for='id_email'>Your Email (Optional):</label><br />
+<input id='id_email' name='email' value='{{ comment.email|escape }}' /><br />
+<label for='id_url'>Your URL (Optional):</label><br />
+<input style='width: 80%; clear: both;' id='id_url' name='url'
+       value='{{ comment.url|escape }}' /><br />
+<label for='id_content'>Comment:</label><br />
+<textarea style='width: 80%; height: 20em; clear: both;' id='id_content'
+          name='content'>{{ markdown_content|escape }}</textarea><br />
+<input type='submit' value='Preview Comment' />
+</form>
+{% endblock %}

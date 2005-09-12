@@ -1,5 +1,6 @@
 from django.core import meta
 from django.conf.settings import MEDIA_ROOT
+from django.models import auth
 
 class Category(meta.Model):
     name = meta.CharField('name', maxlength=30)
@@ -68,6 +69,11 @@ class Post(meta.Model):
                           order_by=['-posted'],
                           limit=1)
 
+    def get_previewed_comment_list(self):
+        return self.get_comment_list(previewed__exact=True)
+    def get_previewed_comment_count(self):
+        return self.get_comment_count(previewed__exact=True)
+
     def __repr__(self):
         return self.title
 
@@ -89,3 +95,25 @@ class Draft(meta.Model):
 
     def __repr__(self):
         return self.title
+
+class Comment(meta.Model):
+    user = meta.ForeignKey(auth.User, blank=True, null=True)
+    name = meta.CharField(maxlength=20)
+    email = meta.EmailField(blank=True, null=True)
+    url = meta.URLField(blank=True, null=True)
+    
+    post = meta.ForeignKey(Post)
+    posted = meta.DateTimeField(auto_now_add=True)
+    previewed = meta.BooleanField()
+    ip_address = meta.IPAddressField()
+
+    content = meta.TextField()
+
+    class META:
+        get_latest_by = 'posted'
+        admin = meta.Admin(
+            list_display = ['name', 'post', 'posted', 'previewed'],
+        )
+
+    def get_absolute_url(self):
+        return self.get_post().get_absolute_url() + '#comment-%d' % self.id
