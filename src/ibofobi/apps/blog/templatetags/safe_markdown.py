@@ -43,10 +43,6 @@ import re
 
 from django.core.defaultfilters import escape
 
-# Only return valid XHTML 1.0 Strict.
-# Escape all HTML.
-# Test cases!
-
 def render(doc):
     lines = doc.split('\n')
     blocks = []
@@ -108,3 +104,6 @@ def render_paragraph(p):
     p = re_em.sub(r'<em>\1</em>', p)
     p = re_link.sub(r'<a href="\2" rel="nofollow">\1</a>', p)
     return p
+
+from django.core import template
+template.register_filter('safe_markdown', render, False)
