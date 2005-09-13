@@ -6,6 +6,8 @@ from django.core.cache import cache
 from django.utils.httpwrappers import HttpResponseNotModified
 import datetime, md5
 
+df = open('/tmp/django.debug', 'w')
+
 class CacheMiddleware:
     """
     Cache middleware. If this is enabled, each Django-powered page will be
@@ -16,11 +18,6 @@ class CacheMiddleware:
     listed in the response Vary-header [ FIXME -- need example, or better
     description? ]. This means that pages cannot change their Vary-header,
     without strange results.
-
-    If the cache is shared across multiple sites using the same Django
-    installation, set the CACHE_MIDDLEWARE_KEY_PREFIX to the name of the
-    site, or some other string that is unique to this Django instance, to
-    prevent key collisions.
     """
     def process_request(self, request):
         """Checks whether the page is already cached. If it is, returns
@@ -30,12 +27,10 @@ class CacheMiddleware:
             request._cache_middleware_set_cache = False
             return None # Don't bother checking the cache.
 
-        vary_key = 'ibofobi.cache.vary.%s.%s' % \
-            (settings.CACHE_MIDDLEWARE_KEY_PREFIX, request.path)
+        vary_key = 'ibofobi.cache.vary.%d.%s' % (settings.SITE_ID, request.path)
         request._ibofobi_cache_vary_key = vary_key
 
-        page_key = 'ibofobi.cache.page.%s.%s' % \
-            (settings.CACHE_MIDDLEWARE_KEY_PREFIX, request.path)
+        page_key = 'ibofobi.cache.page.%d.%s' % (settings.SITE_ID, request.path)
         request._ibofobi_cache_page_key = page_key
 
         request._ibofobi_cache_varies = varies = cache.get(vary_key, None)
@@ -49,33 +44,42 @@ class CacheMiddleware:
             response = cache.get(response_key, None)
         
         if response is None:
-            request._ibofobi_cache_set = True
+            request._ibofobi_cache_update = True
             return None
         else:
-            request._cache_middleware_set_cache = False
+            request._ibofobi_cache_update = False
+            print >>df, 'Returning cached copy of %s' % response_key
+            df.flush()
             return response
 
     def process_response(self, request, response):
         """Sets the cache, if needed."""
-        if request._cache_middleware_set_cache:
-            #response['ETag'] = md5.new(content).hexdigest()
-            #response['Last-Modified'] = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
 
-            if request._ibofobi_cache_varies:
-                response_key = request._ibofobi_cache_response_key
-            else:
-                varies = []
-                response_key = request._ibofobi_cache_page_key
-                for header in response.get('Vary', '').split(','):
+        if not request._ibofobi_cache_update:
+            return response
+
+        #response['ETag'] = md5.new(content).hexdigest()
+        #response['Last-Modified'] = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+
+        if request._ibofobi_cache_varies:
+            response_key = request._ibofobi_cache_response_key
+        else:
+            varies = []
+            response_key = request._ibofobi_cache_page_key
+            if response.has_header('Vary'):
+                vary = response['Vary']
+                for header in vary.split(','):
                     header = header.strip()
                     meta_key = 'HTTP_' + header.upper().replace('-', '_')
                     response_key = response_key + '.' + request.META.get(meta_key, '')
                     varies.append(meta_key)
 
-                cache.set(request._ibofobi_cache_vary_key, meta_keys,
-                          settings.CACHE_MIDDLEWARE_SECONDS)
-
-            cache.set(response_key, response,
+            cache.set(request._ibofobi_cache_vary_key, varies,
                       settings.CACHE_MIDDLEWARE_SECONDS)
+
+        print >>df, 'Updating cached copy of %s' % response_key
+        df.flush()
+        cache.set(response_key, response,
+                  settings.CACHE_MIDDLEWARE_SECONDS)
 
         return response
