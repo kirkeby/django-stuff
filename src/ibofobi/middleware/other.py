@@ -2,7 +2,7 @@ import re
 
 re_vary_cookie = re.compile(r'\bCookie\b')
 
-class FixVaryHeader:
+class FixVaryHeaderMiddleware:
     def process_response(self, request, response):
         if response.has_header('Vary'):
             if not re_vary_cookie.search(response['Vary']):

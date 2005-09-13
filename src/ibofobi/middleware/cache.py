@@ -6,8 +6,6 @@ from django.core.cache import cache
 from django.utils.httpwrappers import HttpResponseNotModified
 import datetime, md5
 
-df = open('/tmp/django.debug', 'w')
-
 class CacheMiddleware:
     """
     Cache middleware. If this is enabled, each Django-powered page will be
@@ -24,7 +22,7 @@ class CacheMiddleware:
         the cached version."""
 
         if request.GET or request.POST:
-            request._cache_middleware_set_cache = False
+            request._ibofobi_cache_update = False
             return None # Don't bother checking the cache.
 
         vary_key = 'ibofobi.cache.vary.%d.%s' % (settings.SITE_ID, request.path)
@@ -48,8 +46,7 @@ class CacheMiddleware:
             return None
         else:
             request._ibofobi_cache_update = False
-            print >>df, 'Returning cached copy of %s' % response_key
-            df.flush()
+            #print >>df, 'Returning cached copy of %s' % response_key
             return response
 
     def process_response(self, request, response):
@@ -77,8 +74,7 @@ class CacheMiddleware:
             cache.set(request._ibofobi_cache_vary_key, varies,
                       settings.CACHE_MIDDLEWARE_SECONDS)
 
-        print >>df, 'Updating cached copy of %s' % response_key
-        df.flush()
+        #print >>df, 'Updating cached copy of %s' % response_key
         cache.set(response_key, response,
                   settings.CACHE_MIDDLEWARE_SECONDS)
 
