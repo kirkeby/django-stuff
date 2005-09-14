@@ -230,8 +230,9 @@ if __name__ == '__main__':
     interface = ''
     port = 8080
     socket_fd = None
+    max_requests = 1
 
-    opts, args = getopt.getopt(sys.argv[1:], '', ('socket-fd=', 'port=', 'bind='))
+    opts, args = getopt.getopt(sys.argv[1:], '', ('socket-fd=', 'port=', 'bind=', 'max-requests='))
     for k, v in opts:
         if k == '--socket-fd':
             socket_fd = int(v)
@@ -239,6 +240,8 @@ if __name__ == '__main__':
             port = int(v)
         elif k == '--bind':
             interface = v
+        elif k == '--max-requests':
+            max_requests = int(v)
         else:
             raise 'Bad, bad getop! %r' % k
 
@@ -254,12 +257,13 @@ if __name__ == '__main__':
         sock = socket.fromfd(socket_fd, socket.AF_INET, socket.SOCK_STREAM)
 
     try:
-        s, o = sock.accept()
-        try:
-            server(SocketTransport(s))
-        except:
-            exc_info = sys.exc_info()
-            traceback.print_exception(exc_info[0], exc_info[1], exc_info[2])
+        for i in range(max_requests):
+            s, o = sock.accept()
+            try:
+                server(SocketTransport(s))
+            except:
+                exc_info = sys.exc_info()
+                traceback.print_exception(exc_info[0], exc_info[1], exc_info[2])
 
         # close all open file-descriptors, which are not std{in,out,err} or
         # our listening socket,
@@ -272,7 +276,9 @@ if __name__ == '__main__':
                 if not eno == errno.EBADF:
                     warnings.warn('errno %d closing fd %d' % (eno, fd))
 
-        os.execv(sys.argv[0], [sys.argv[0], '--socket-fd', str(sock.fileno())])
+        print "Re-exec'ing myself"
+        os.execv(sys.argv[0], [sys.argv[0], '--socket-fd', str(sock.fileno()),
+                                            '--max-requests', str(max_requests)])
 
     except KeyboardInterrupt:
         sys.exit(0)
