@@ -4,24 +4,40 @@ middleware."""
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.httpwrappers import HttpResponseNotModified
-import datetime, md5
+
+import datetime
+import copy
+import md5
 
 class CacheMiddleware:
     """
     Cache middleware. If this is enabled, each Django-powered page will be
-    cached for CACHE_MIDDLEWARE_SECONDS seconds. Cache is based on URLs. Pages
-    with GET or POST parameters are not cached.
+    cached for CACHE_MIDDLEWARE_SECONDS seconds. Cache is based on URLs.
+
+    Only parameter-less GET or HEAD-requests are cached.
+
+    Only responses with status-code 200 will be cached.
+
+    This middleware expects that a HEAD request is answered with a
+    response exactly like the corresponding GET request.
+
+    When a hit occurs, a shallow copy of the original response object is
+    returned from process_request.
 
     Pages will be cached based on the contents of the request headers
     listed in the response Vary-header [ FIXME -- need example, or better
     description? ]. This means that pages cannot change their Vary-header,
     without strange results.
+
+    Also, this middleware sets ETag, Last-Modified, Expires and
+    Cache-Control headers on the response object.
     """
     def process_request(self, request):
         """Checks whether the page is already cached. If it is, returns
         the cached version."""
 
-        if request.GET or request.POST:
+        method = request.META['REQUEST_METHOD']
+        if not method in ('GET', 'HEAD') or request.GET:
             request._ibofobi_cache_update = False
             return None # Don't bother checking the cache.
 
@@ -47,18 +63,26 @@ class CacheMiddleware:
         else:
             request._ibofobi_cache_update = False
             #print >>df, 'Returning cached copy of %s' % response_key
-            return response
+            return copy.copy(response)
 
     def process_response(self, request, response):
         """Sets the cache, if needed."""
 
         if not request._ibofobi_cache_update:
             return response
+        if not response.status_code == 200:
+            return response
 
-        #response['ETag'] = md5.new(content).hexdigest()
-        #response['Last-Modified'] = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+        now = datetime.datetime.utcnow()
+        expires = now + datetime.timedelta(0, settings.CACHE_MIDDLEWARE_SECONDS)
+
+        response['ETag'] = md5.new(response.content).hexdigest()
+        response['Last-Modified'] = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        response['Expires'] = expires.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        response['Cache-Control'] = 'max-age=%d' % settings.CACHE_MIDDLEWARE_SECONDS
 
         if request._ibofobi_cache_varies:
+            varies = request._ibofobi_cache_varies
             response_key = request._ibofobi_cache_response_key
         else:
             varies = []
@@ -71,9 +95,8 @@ class CacheMiddleware:
                     response_key = response_key + '.' + request.META.get(meta_key, '')
                     varies.append(meta_key)
 
-            cache.set(request._ibofobi_cache_vary_key, varies,
-                      settings.CACHE_MIDDLEWARE_SECONDS)
-
+        cache.set(request._ibofobi_cache_vary_key, varies,
+                  settings.CACHE_MIDDLEWARE_SECONDS)
         #print >>df, 'Updating cached copy of %s' % response_key
         cache.set(response_key, response,
                   settings.CACHE_MIDDLEWARE_SECONDS)
