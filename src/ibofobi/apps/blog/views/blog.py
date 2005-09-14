@@ -5,7 +5,6 @@ from django.conf.settings import ADMIN_URL
 from django.core.extensions import DjangoContext as Context
 from django.models.blog import posts
 from django.models.blog import categories
-from django.models.blog import drafts
 from django.models.blog import comments
 from django.utils.httpwrappers import HttpResponse
 from django.utils.httpwrappers import HttpResponseRedirect
@@ -31,7 +30,7 @@ def __load_atom_template():
 
 def latest(request, format=None):
     c = Context(request, {
-        'posts': posts.get_list(limit=5, order_by=['-posted']),
+        'posts': posts.get_list(listed__exact=True, limit=5, order_by=['-posted']),
     })
     if format == 'atom':
         t = __load_atom_template()
@@ -49,7 +48,7 @@ def tag_posts(request, slug, format=None, limit=None):
 
     c = Context(request, {
         'tag': category,
-        'posts': category.get_post_list(order_by=['-posted'], limit=limit),
+        'posts': category.get_listed_post_list(order_by=['-posted'], limit=limit),
     })
     if format == 'atom':
         t = __load_atom_template()
@@ -92,7 +91,8 @@ def archive_index(request):
 
     c = Context(request, {
         'months': [ { 'date': date,
-                      'posts': len(posts.get_list(posted__year=date.year,
+                      'posts': len(posts.get_list(listed__exact=True,
+                                                  posted__year=date.year,
                                                   posted__month=date.month)), }
                     for date, in rows ],
     })
@@ -111,7 +111,8 @@ def archive_year(request, year):
     c = Context(request, {
         'year': year,
         'months': [ { 'date': date,
-                      'posts': len(posts.get_list(posted__year=date.year,
+                      'posts': len(posts.get_list(listed__exact=True,
+                                                  posted__year=date.year,
                                                   posted__month=date.month)), }
                     for date, in rows ],
     })
@@ -121,7 +122,8 @@ def archive_year(request, year):
 def archive_month(request, year, month):
     c = Context(request, {
         'date': datetime.date(int(year), int(month), 1),
-        'posts': posts.get_list(posted__year=int(year),
+        'posts': posts.get_list(listed__exact=True,
+                                posted__year=int(year),
                                 posted__month=int(month),
                                 order_by=['posted']),
     })
@@ -131,48 +133,14 @@ def archive_month(request, year, month):
 def archive_day(request, year, month, day):
     c = Context(request, {
         'date': datetime.date(int(year), int(month), int(day)),
-        'posts': posts.get_list(posted__year=int(year),
+        'posts': posts.get_list(listed__exact=True,
+                                posted__year=int(year),
                                 posted__month=int(month),
                                 posted__day=int(day),
                                 order_by=['posted']),
     })
     t = template_loader.get_template('blog/archive-day')
     return HttpResponse(t.render(c), xhtml_content_type)
-
-def preview_draft(request, object_id):
-    try:
-        draft = drafts.get_object(pk=int(object_id))
-    except drafts.DraftDoesNotExist:
-        raise Http404
-
-    draft.posted = datetime.datetime.now
-
-    c = Context(request, {
-        'post': draft,
-        'is_draft': True,
-    })
-    t = template_loader.get_template('blog/post')
-    return HttpResponse(t.render(c), xhtml_content_type)
-preview_draft.admin_required = True
-
-def publish_draft(request, object_id):
-    try:
-        draft = drafts.get_object(pk=int(object_id))
-    except drafts.DraftDoesNotExist:
-        raise Http404
-
-    post = posts.Post(title=draft.title, content=draft.content)
-    # post.tag is set by Post._pre_save
-    post.slug = slugify(draft.title, None)
-    post.posted = datetime.datetime.now()
-    post.save()
-    post.set_categories([ c.id for c in draft.get_category_list()])
-    post.save()
-
-    draft.delete()
-
-    return HttpResponseRedirect('%s/blog/posts/%d/' % (settings.ADMIN_URL, post.id))
-preview_draft.admin_required = True
 
 def feeds_index(request):
     c = Context(request, {

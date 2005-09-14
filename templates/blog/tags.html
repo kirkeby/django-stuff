@@ -5,7 +5,7 @@
 <ul>
 {% for tag in tags %}
 <li><strong><a href='{{ tag.slug }}/'>{{ tag.name }}</a></strong>
-    ({{ tag.get_post_list|length }} post{{ tag.get_post_list|pluralize }};
+    ({{ tag.get_listed_post_list|length }} post{{ tag.get_listed_post_list|pluralize }};
     last one posted {{ tag.get_latest_post.posted|timesince }} ago.)</li>
 {% endfor %}
 </ul>

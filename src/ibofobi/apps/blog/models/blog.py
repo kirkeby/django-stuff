@@ -20,9 +20,12 @@ class Category(meta.Model):
         return '/blog/tags/%s/' % self.slug
 
     def get_latest_post(self):
-        p = self.get_post_list(order_by=['-posted'], limit=1)
+        p = self.get_post_list(listed__exact=True, order_by=['-posted'], limit=1)
         if p:
             return p[0]
+
+    def get_listed_post_list(self, **kwargs):
+        return self.get_post_list(listed__exact=True, **kwargs)
 
     def __repr__(self):
         return self.name
@@ -37,6 +40,7 @@ class Post(meta.Model):
                          editable=False,
                          unique=True,
                          maxlength=100)
+    listed = meta.BooleanField(help_text='Is post shown in the public views')
     posted = meta.DateTimeField('posted',
                                 help_text='Date and time when post went public')
     title = meta.CharField(maxlength=100)
@@ -46,8 +50,11 @@ class Post(meta.Model):
     class META:
         admin = meta.Admin(
             fields = (
-                (None, {'fields': ('title', 'slug', 'categories', 'content', 'posted')}),
+                (None, {'fields': ('title', 'slug', 'listed', 'posted')}),
+                (None, {'fields': ('categories', 'content')}),
             ),
+            list_filter = ['posted', 'listed'],
+            list_display = ['title', 'posted', 'listed'],
         )
 
     def _pre_save(self):
@@ -73,25 +80,6 @@ class Post(meta.Model):
         return self.get_comment_list(previewed__exact=True)
     def get_previewed_comment_count(self):
         return self.get_comment_count(previewed__exact=True)
-
-    def __repr__(self):
-        return self.title
-
-class Draft(meta.Model):
-    title = meta.CharField(maxlength=50)
-    content = meta.TextField()
-    categories = meta.ManyToManyField(Category)
-
-    class META:
-        admin = meta.Admin(
-            fields = (
-                (None, {'fields': ('title', 'categories', 'content'),
-                        'js': [MEDIA_ROOT + '/blog-draft-admin.js']}),
-            ),
-        )
-
-    def get_absolute_url(self):
-        return '/blog/admin/drafts/view/%d/' % self.id
 
     def __repr__(self):
         return self.title
