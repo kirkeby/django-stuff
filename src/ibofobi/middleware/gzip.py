@@ -22,6 +22,5 @@ class GZipMiddleware:
 
         response.content = compress_string(response.content)
         response['Content-Encoding'] = 'gzip'
-        response['Content-Length'] = str(len(response.content))
 
         return response
