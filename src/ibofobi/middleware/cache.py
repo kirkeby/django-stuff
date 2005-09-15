@@ -70,6 +70,12 @@ class CacheMiddleware:
 
         if not request._ibofobi_cache_update:
             return response
+        if not request.META['REQUEST_METHOD'] == 'GET':
+            # This is a stronger requirement than above. It is needed
+            # because of interactions between this middleware and the
+            # HTTPMiddleware, which throws the body of a HEAD-request
+            # away before this middleware gets a chance to cache it.
+            return response
         if not response.status_code == 200:
             return response
 
