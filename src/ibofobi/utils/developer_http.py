@@ -207,6 +207,7 @@ class SocketTransport:
     def __init__(self, sock):
         self.sock = sock
         self.file = file = os.fdopen(sock.fileno(), 'r+')
+        self.closed = False
         for o, m in ((file, self.__file_methods__),
                      (sock, self.__socket_methods__)):
             for n in m:
@@ -216,9 +217,12 @@ class SocketTransport:
         self.there = sock.getpeername()
 
     def close(self):
+        if self.closed:
+            return
         self.file.flush()
         self.file.close()
         self.sock.close()
+        self.closed = True
 
 if __name__ == '__main__':
     handler = logging.StreamHandler()
