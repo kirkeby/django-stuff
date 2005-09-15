@@ -6,8 +6,8 @@
 {% for post in posts %}
 <li><strong><a href='{{ post.get_absolute_url }}'>{{ post.title }}</a></strong><br />
     <em>Posted: {{ post.posted|timesince }} ago</em><br />
-    {{ post.content|striptags|fix_ampersands|truncatewords:"30" }}
-    ({{ post.content|wordcount }} words)
+    {{ post.get_content_rendered|striptags|truncatewords:"30" }}
+    ({{ post.get_content_rendered|striptags|wordcount }} words)
 </li>
 {% endfor %}
 </ul>

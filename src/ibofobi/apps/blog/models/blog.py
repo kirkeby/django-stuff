@@ -1,6 +1,9 @@
 from django.core import meta
-from django.conf.settings import MEDIA_ROOT
+from django.core.cache import cache
+from django.conf import settings
 from django.models import auth
+
+from ibofobi.apps.blog.templatetags.markdown import markdown
 
 class Category(meta.Model):
     name = meta.CharField('name', maxlength=30)
@@ -10,11 +13,7 @@ class Category(meta.Model):
         module_name = 'categories'
         verbose_name_plural = 'categories'
 
-        admin = meta.Admin(
-            fields = (
-                (None, {'fields': ('name', 'slug')}),
-            ),
-        )
+        admin = meta.Admin()
 
     def get_absolute_url(self):
         return '/blog/tags/%s/' % self.slug
@@ -48,6 +47,15 @@ class Post(meta.Model):
     categories = meta.ManyToManyField(Category, blank=True)
 
     class META:
+        get_latest_by = 'posted'
+
+        module_constants = {
+            'cache': cache,
+            'settings': settings,
+            'markdown': markdown,
+            'cache_seconds': getattr(settings, 'BLOG_MARKDOWN_CACHE_SECONDS', 0),
+        }
+
         admin = meta.Admin(
             fields = (
                 (None, {'fields': ('title', 'slug', 'listed', 'posted')}),
@@ -76,6 +84,18 @@ class Post(meta.Model):
                           order_by=['-posted'],
                           limit=1)
 
+    def get_content_rendered(self):
+        """Return the content of this post, rendered as XHTML."""
+        rendered = None
+        if cache_seconds:
+            key = 'ibofobi.blog.markdown_cache.' + self.get_absolute_url()
+            rendered = cache.get(key)
+        if not rendered:
+            rendered = markdown(self.content, None)
+        if cache_seconds:
+            cache.set(key, rendered, cache_seconds)
+        return rendered
+
     def get_previewed_comment_list(self):
         return self.get_comment_list(previewed__exact=True)
     def get_previewed_comment_count(self):
@@ -101,6 +121,7 @@ class Comment(meta.Model):
         get_latest_by = 'posted'
         admin = meta.Admin(
             list_display = ['name', 'post', 'posted', 'previewed'],
+            list_filter = ['posted', 'previewed'],
         )
 
     def get_absolute_url(self):

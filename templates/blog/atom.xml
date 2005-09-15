@@ -30,11 +30,11 @@
             <div xmlns='http://www.w3.org/1999/xhtml'>{{ post.title }}</div>
         </title>
         <summary type='application/xhtml+xml'>
-            {{ post.content|striptags|fix_ampersands|truncatewords:"30" }}
+            {{ post.get_content_rendered|striptags|truncatewords:"30" }}
         </summary>
         <content type='application/xhtml+xml'>
             <div xmlns='http://www.w3.org/1999/xhtml'>
-                {{ post.content|markdown }}
+                {{ post.get_content_rendered }}
             </div>
         </content>
     </entry>
