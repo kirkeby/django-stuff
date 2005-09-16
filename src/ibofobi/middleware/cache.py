@@ -82,10 +82,14 @@ class CacheMiddleware:
         now = datetime.datetime.utcnow()
         expires = now + datetime.timedelta(0, settings.CACHE_MIDDLEWARE_SECONDS)
 
-        response['ETag'] = md5.new(response.content).hexdigest()
-        response['Last-Modified'] = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        response['Expires'] = expires.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        response['Cache-Control'] = 'max-age=%d' % settings.CACHE_MIDDLEWARE_SECONDS
+        if not response.has_header('ETag'):
+            response['ETag'] = md5.new(response.content).hexdigest()
+        if not response.has_header('Last-Modified'):
+            response['Last-Modified'] = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if not response.has_header('Expires'):
+            response['Expires'] = expires.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if not response.has_header('Cache-Control'):
+            response['Cache-Control'] = 'max-age=%d' % settings.CACHE_MIDDLEWARE_SECONDS
 
         if request._ibofobi_cache_varies:
             varies = request._ibofobi_cache_varies
