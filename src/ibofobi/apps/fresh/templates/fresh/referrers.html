@@ -1,0 +1,10 @@
+{% extends "base" %}
+{% block title %}Referrers{% endblock %}
+{% block content %}
+<ul>
+{% for referrer in referrers %}
+    <li>{{ referrer.count }} hit{{ referrer.count|pluralize }} from <a
+    href="{{ referrer.url|escape }}">{{ referrer.text|escape }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

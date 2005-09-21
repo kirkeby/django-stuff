@@ -2,8 +2,6 @@ from django.core import meta
 from django.models import auth
 
 class PageView(meta.Model):
-    user = meta.ForeignKey(auth.User, blank=True, null=True)
-    # session
     ip_address = meta.IPAddressField()
     served = meta.DateTimeField(auto_now=True)
     url = meta.CharField(maxlength=512)
@@ -12,8 +10,8 @@ class PageView(meta.Model):
 
     class META:
         admin = meta.Admin(
-            list_display = ['url', 'served'],
-            list_filter = ['url', 'served'],
+            list_display = ['url', 'ip_address', 'served'],
+            list_filter = ['served'],
         )
 
     def __repr__(self):
