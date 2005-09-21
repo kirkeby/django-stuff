@@ -1,0 +1,6 @@
+{% extends "base" %}
+{% block extraadmin %}
+{% if post %}
+<li><a href='{{ admin_url }}/blog/posts/{{ post.id }}/'>edit post</a></li>
+{% endif %}
+{% endblock %}
