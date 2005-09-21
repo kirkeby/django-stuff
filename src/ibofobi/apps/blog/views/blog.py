@@ -170,8 +170,9 @@ def preview_comment(request, year, month, day, slug):
 
     comment.user = request.user
     comment.previewed = False
+
     if request.META.has_key('HTTP_X_FORWARDED_FOR'):
-        comment.ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
+        comment.ip_address = request.META['HTTP_X_FORWARDED_FOR'].split(',')[-1].strip()
     elif request.META.has_key('REMOTE_ADDR'):
         comment.ip_address = request.META.get('REMOTE_ADDR')
     else:
