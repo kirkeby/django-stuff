@@ -18,7 +18,6 @@ from ibofobi.apps.blog.templatetags import safe_markdown
 import os
 import datetime
 
-xhtml_content_type = 'application/xhtml+xml; charset=utf-8'
 atom_content_type = 'application/xml; charset=utf-8'
 
 def __load_atom_template():
@@ -37,7 +36,7 @@ def latest(request, format=None):
         ct = atom_content_type
     else:
         t = template_loader.get_template('blog/latest')
-        ct = xhtml_content_type
+        ct = None
     return HttpResponse(t.render(c), ct)
 
 def tag_posts(request, slug, format=None, limit=None):
@@ -55,7 +54,7 @@ def tag_posts(request, slug, format=None, limit=None):
         ct = atom_content_type
     else:
         t = template_loader.get_template('blog/tag-posts')
-        ct = xhtml_content_type
+        ct = None
     return HttpResponse(t.render(c), ct)
 
 def post(request, year, month, day, slug):
@@ -72,14 +71,14 @@ def post(request, year, month, day, slug):
         'admin_url': ADMIN_URL,
     })
     t = template_loader.get_template('blog/post')
-    return HttpResponse(t.render(c), xhtml_content_type)
+    return HttpResponse(t.render(c))
 
 def tag_index(request):
     c = Context(request, {
         'tags': categories.get_list(order_by=['name']),
     })
     t = template_loader.get_template('blog/tags')
-    return HttpResponse(t.render(c), xhtml_content_type)
+    return HttpResponse(t.render(c))
 
 def archive_index(request):
     c = db.cursor()
@@ -97,7 +96,7 @@ def archive_index(request):
                     for date, in rows ],
     })
     t = template_loader.get_template('blog/archive-index')
-    return HttpResponse(t.render(c), xhtml_content_type)
+    return HttpResponse(t.render(c))
 
 def archive_year(request, year):
     c = db.cursor()
@@ -117,7 +116,7 @@ def archive_year(request, year):
                     for date, in rows ],
     })
     t = template_loader.get_template('blog/archive-year')
-    return HttpResponse(t.render(c), xhtml_content_type)
+    return HttpResponse(t.render(c))
 
 def archive_month(request, year, month):
     c = Context(request, {
@@ -128,7 +127,7 @@ def archive_month(request, year, month):
                                 order_by=['posted']),
     })
     t = template_loader.get_template('blog/archive-month')
-    return HttpResponse(t.render(c), xhtml_content_type)
+    return HttpResponse(t.render(c))
 
 def archive_day(request, year, month, day):
     c = Context(request, {
@@ -140,14 +139,14 @@ def archive_day(request, year, month, day):
                                 order_by=['posted']),
     })
     t = template_loader.get_template('blog/archive-day')
-    return HttpResponse(t.render(c), xhtml_content_type)
+    return HttpResponse(t.render(c))
 
 def feeds_index(request):
     c = Context(request, {
         'tags': categories.get_list(order_by=['-name']),
     })
     t = template_loader.get_template('blog/feeds_index')
-    return HttpResponse(t.render(c), xhtml_content_type)
+    return HttpResponse(t.render(c))
 
 def preview_comment(request, year, month, day, slug):
     try:
@@ -190,8 +189,7 @@ def preview_comment(request, year, month, day, slug):
         'comment': comment,
     })
     t = template_loader.get_template('blog/preview-comment')
-    ct = xhtml_content_type
-    return HttpResponse(t.render(c), ct)
+    return HttpResponse(t.render(c))
 
 def post_comment(request, year, month, day, slug):
     try:

@@ -6,8 +6,6 @@ from django.models.fresh import pageviews
 
 import re
 
-xhtml_content_type = 'application/xhtml+xml; charset=utf-8'
-
 meta_referrers = (
     (None, None,
         r'^http://([a-z]+\.)?ibofobi\.dk/'),
@@ -41,4 +39,4 @@ def referrers(request):
 
     t = template_loader.get_template('fresh/referrers')
     c = Context(request, { 'referrers': referrers, })
-    return HttpResponse(t.render(c), xhtml_content_type)
+    return HttpResponse(t.render(c))

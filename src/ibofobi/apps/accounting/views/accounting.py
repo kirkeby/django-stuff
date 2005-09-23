@@ -4,14 +4,12 @@ from django.models.accounting import accounts
 from django.utils.httpwrappers import HttpResponse
 from django.core.exceptions import Http404
 
-content_type = 'application/xhtml+xml; charset=utf-8'
-
 def index(request):
     t = template_loader.get_template('accounting/index')
     c = Context(request, {
         'account_list': accounts.get_list(),
     })
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c))
 
 def view(request, account_slug):
     try:
@@ -22,4 +20,4 @@ def view(request, account_slug):
     c = Context(request, {
         'account': account,
     })
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c))

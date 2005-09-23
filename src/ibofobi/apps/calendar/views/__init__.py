@@ -10,8 +10,6 @@ from django.core import formfields
 import datetime
 import time
 
-content_type = 'application/xhtml+xml; charset=utf-8'
-
 def index(request):
     return HttpResponseRedirect('%d/%02d/' % time.localtime()[:2])
 
@@ -28,8 +26,7 @@ def month(request, year, month):
         'month': month,
         'matrix': get_month_matrix(year, month),
     })
-    return HttpResponse(t.render(c), content_type)
-
+    return HttpResponse(t.render(c))
 
 def create(request, year, month, day):
     manipulator = events.AddManipulator()
@@ -64,7 +61,7 @@ def create(request, year, month, day):
     form = formfields.FormWrapper(manipulator, new_data, errors)
     t = template_loader.get_template('calendar/create')
     c = Context(request, { 'form': form, })
-    return HttpResponse(t.render(c), content_type)
+    return HttpResponse(t.render(c))
 
 def get_month_matrix(year, month):
     """get_month_matrix(year, month) -> [ [ ... ] ... ]
