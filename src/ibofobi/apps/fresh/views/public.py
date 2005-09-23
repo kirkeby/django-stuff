@@ -12,7 +12,7 @@ def fresh(request):
     url = '/' + request.GET['url'].split('/', 3)[-1]
 
     pv = pageviews.PageView(url=url)
-    pv.referrer = request.GET['ref'] or None
+    pv.referrer = request.GET.get('ref', '') or None
     pv.user_agent = request.META.get('HTTP_USER_AGENT', None)
     pv.ip_address = ip
     pv.save()
