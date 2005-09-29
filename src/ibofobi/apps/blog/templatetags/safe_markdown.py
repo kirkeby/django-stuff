@@ -97,11 +97,13 @@ def pop_codeblock(lines):
 
 re_strong = re.compile(r"\*([\w&;/%#'_-]+)\*")
 re_em = re.compile(r"_([\w&;/%#'*-]+)_")
+re_code = re.compile(r"`([\w &;/%$!*()[\]?.,:{}*+%#'\"_-]+)`")
 re_link = re.compile(r"\[([\w&;/%#'_*-]+)\]\(([a-z]+://[a-zA-Z0-9._-]+/[^\]]+)\)")
 re_link = re.compile(r"\[([^]]+)\]\(([a-z]+://[a-zA-Z0-9._-]+/[^)]*)\)")
 def render_paragraph(p):
     p = re_strong.sub(r'<strong>\1</strong>', p)
     p = re_em.sub(r'<em>\1</em>', p)
+    p = re_code.sub(r'<tt>\1</tt>', p)
     p = re_link.sub(r'<a href="\2" rel="nofollow">\1</a>', p)
     return p
 

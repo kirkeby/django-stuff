@@ -40,6 +40,8 @@ def test_strong():
     assert render('*Strong*') == '<p><strong>Strong</strong></p>'
     assert render('*_strong-emphasised_*') == '<p><strong><em>strong-emphasised</em></strong></p>'
     assert render('_*strong-emphasised*_') == '<p>_<strong>strong-emphasised</strong>_</p>'
+def test_code():
+    assert render('`code[42]`') == '<p><tt>code[42]</tt></p>'
 def test_emphasised():
     assert render('_Emphasised_') == '<p><em>Emphasised</em></p>'
 def test_link():
