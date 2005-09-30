@@ -1,7 +1,9 @@
 from django.core import template
 from django.core import template_loader
+from django.core.mail import send_mail
 from django.conf.settings import TEMPLATE_DIRS
 from django.conf.settings import ADMIN_URL
+from django.conf.settings import ADMINS, SERVER_EMAIL
 from django.core.extensions import DjangoContext as Context
 from django.models.blog import posts
 from django.models.blog import categories
@@ -212,5 +214,9 @@ def post_comment(request, year, month, day, slug):
 
     c.previewed = True
     c.save()
+
+    send_mail("Posted %r" % c,
+              "http://admin.ibofobi.dk/blog/comments/%d/" % c.id,
+              SERVER_EMAIL, [a[1] for a in ADMINS], True)
 
     return HttpResponseRedirect(c.get_absolute_url())
