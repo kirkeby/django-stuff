@@ -193,6 +193,15 @@ def preview_comment(request, year, month, day, slug):
     t = template_loader.get_template('blog/preview-comment')
     return HttpResponse(t.render(c))
 
+comment_posted = template.Template("""
+Admin URL: http://admin.ibofobi.dk/blog/comments/{{ comment.id }}/
+
+Posted by {{ comment.name }} <{{ comment.email }}>
+from {{ comment.ip_address }}
+in response to {{ comment.get_post }}:
+
+{{ comment.content }}
+""")
 def post_comment(request, year, month, day, slug):
     try:
         p = posts.get_object(posted__year=int(year),
@@ -212,11 +221,11 @@ def post_comment(request, year, month, day, slug):
     if c.previewed:
         raise Http404()
 
+    send_mail("New comment on %s" % c.get_post(),
+              comment_posted.render(template.Context(dict(comment=c))),
+              SERVER_EMAIL, [a[1] for a in ADMINS], True)
+
     c.previewed = True
     c.save()
-
-    send_mail("Posted %r" % c,
-              "http://admin.ibofobi.dk/blog/comments/%d/" % c.id,
-              SERVER_EMAIL, [a[1] for a in ADMINS], True)
 
     return HttpResponseRedirect(c.get_absolute_url())
