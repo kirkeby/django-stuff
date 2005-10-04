@@ -1,6 +1,5 @@
 {% extends "blog/base" %}
-{% load markdown %}
-{% block title %}{{ post.title|striptags }} [about:me]{% endblock %}
+{% block pagetitle %}{{ post.title|striptags }}{% endblock %}
 {% block extrahead %}
 <link rel='next' href='{{ post.get_next_post.get_absolute_url }}' />
 <link rel='previous' href='{{ post.get_previous_post.get_absolute_url }}' />
