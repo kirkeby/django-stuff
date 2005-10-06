@@ -46,7 +46,12 @@ class Post(meta.Model):
     posted = meta.DateTimeField('posted',
                                 help_text='Date and time when post went public')
     title = meta.CharField(maxlength=100)
-    content = meta.TextField()
+    content = meta.TextField(help_text='''Quick Markdown guide:
+                                          <nobr><code>[A Link](http://example.com/)</code></nobr>,
+                                          <code>*strong*</code>,
+                                          <code>_emphasis_</code>,
+                                          <nobr><code>&gt; blockquote</code></nobr>,
+                                          <code>`code`</code>''')
     categories = meta.ManyToManyField(Category, blank=True)
 
     class META:
