@@ -34,7 +34,7 @@ def referrers(request):
             referrers.append({'url': url, 'text': text,
                               'count': sum([ r['count'] for r in these ]) })
 
-    referrers.sort(key=lambda r: r['count'])
+    referrers.sort(lambda a, b: cmp(a['count'], b['count']))
     referrers.reverse()
 
     t = template_loader.get_template('fresh/referrers')
