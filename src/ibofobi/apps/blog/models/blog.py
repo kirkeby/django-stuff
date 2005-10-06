@@ -138,4 +138,4 @@ class Comment(meta.Model):
         return self.get_post().get_absolute_url() + '#comment-%d' % self.id
 
     def __repr__(self):
-        return 'Comment %d on %r' % (self.id, self.get_post())
+        return 'Comment %r on %r' % (self.id, self.get_post())
