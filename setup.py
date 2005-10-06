@@ -22,7 +22,6 @@ setup(name = "blog",
                   'ibofobi.apps.blog.urls'],
       namespace_packages = ['ibofobi.apps'],
       package_dir = {'': 'src'},
-      package_data = {'ibofobi.apps.blog': ['templates/blog/*.html',
-                                            'templates/blog/*.xml',],},
+      package_data = {'ibofobi.apps.blog': ['templates/blog/*.html',],},
       zip_safe = True,
 )

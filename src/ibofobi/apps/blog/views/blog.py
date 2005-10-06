@@ -21,19 +21,12 @@ import datetime
 
 atom_content_type = 'application/xml; charset=utf-8'
 
-def __load_atom_template():
-    for td in TEMPLATE_DIRS:
-        path = os.path.join(td, 'blog/atom.xml')
-        if os.path.exists(path):
-            t = template.Template(open(path).read())
-    return t
-
 def latest(request, format=None):
     c = Context(request, {
         'posts': posts.get_list(listed__exact=True, limit=5, order_by=['-posted']),
     })
     if format == 'atom':
-        t = __load_atom_template()
+        t = template_loader.get_template('blog/atom.xml')
         ct = atom_content_type
     else:
         t = template_loader.get_template('blog/latest')
@@ -51,7 +44,7 @@ def tag_posts(request, slug, format=None, limit=None):
         'posts': category.get_listed_post_list(order_by=['-posted'], limit=limit),
     })
     if format == 'atom':
-        t = __load_atom_template()
+        t = template_loader.get_template('blog/atom.xml')
         ct = atom_content_type
     else:
         t = template_loader.get_template('blog/tag-posts')
