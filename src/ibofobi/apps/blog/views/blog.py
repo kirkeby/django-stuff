@@ -42,10 +42,9 @@ def tag_posts(request, slug, format=None, limit=None):
     except categories.CategoryDoesNotExist:
         raise Http404
 
-    c = Context(request, {
-        'tag': category,
-        'posts': category.get_listed_post_list(order_by=['-posted'], limit=limit),
-    })
+    c = Context(request,
+                tag=category,
+                posts=category.get_listed_post_list(order_by=['-posted'], limit=limit))
     if format == 'atom':
         t = template_loader.get_template('blog/atom.xml')
         ct = atom_content_type
@@ -63,16 +62,12 @@ def post(request, year, month, day, slug):
     except posts.PostDoesNotExist:
         raise Http404()
 
-    c = Context(request, {
-        'post': p,
-    })
+    c = Context(request, post=p)
     t = template_loader.get_template('blog/post')
     return HttpResponse(t.render(c))
 
 def tag_index(request):
-    c = Context(request, {
-        'tags': categories.get_list(order_by=['name']),
-    })
+    c = Context(request, tags=categories.get_list(order_by=['name']))
     t = template_loader.get_template('blog/tags')
     return HttpResponse(t.render(c))
 
@@ -84,13 +79,12 @@ def archive_index(request):
     rows = c.fetchall()
     c.close()
 
-    c = Context(request, {
-        'months': [ { 'date': date,
-                      'posts': len(posts.get_list(listed__exact=True,
-                                                  posted__year=date.year,
-                                                  posted__month=date.month)), }
-                    for date, in rows ],
-    })
+    c = Context(request, months=[ {
+                    'date': date,
+                    'posts': len(posts.get_list(listed__exact=True,
+                                                posted__year=date.year,
+                                                posted__month=date.month)),
+                    } for date, in rows ])
     t = template_loader.get_template('blog/archive-index')
     return HttpResponse(t.render(c))
 
@@ -103,44 +97,37 @@ def archive_year(request, year):
     rows = c.fetchall()
     c.close()
 
-    c = Context(request, {
-        'year': year,
-        'months': [ { 'date': date,
+    c = Context(request, year=year, months=[ {
+                      'date': date,
                       'posts': len(posts.get_list(listed__exact=True,
                                                   posted__year=date.year,
-                                                  posted__month=date.month)), }
-                    for date, in rows ],
-    })
+                                                  posted__month=date.month)),
+                  } for date, in rows ])
     t = template_loader.get_template('blog/archive-year')
     return HttpResponse(t.render(c))
 
 def archive_month(request, year, month):
-    c = Context(request, {
-        'date': datetime.date(int(year), int(month), 1),
-        'posts': posts.get_list(listed__exact=True,
-                                posted__year=int(year),
-                                posted__month=int(month),
-                                order_by=['posted']),
-    })
+    c = Context(request, date=datetime.date(int(year), int(month), 1),
+        posts=posts.get_list(listed__exact=True,
+                             posted__year=int(year),
+                             posted__month=int(month),
+                             order_by=['posted']))
     t = template_loader.get_template('blog/archive-month')
     return HttpResponse(t.render(c))
 
 def archive_day(request, year, month, day):
-    c = Context(request, {
-        'date': datetime.date(int(year), int(month), int(day)),
-        'posts': posts.get_list(listed__exact=True,
-                                posted__year=int(year),
-                                posted__month=int(month),
-                                posted__day=int(day),
-                                order_by=['posted']),
-    })
+    c = Context(request,
+            date=datetime.date(int(year), int(month), int(day)),
+            posts=posts.get_list(listed__exact=True,
+                                 posted__year=int(year),
+                                 posted__month=int(month),
+                                 posted__day=int(day),
+                                 order_by=['posted']))
     t = template_loader.get_template('blog/archive-day')
     return HttpResponse(t.render(c))
 
 def feeds_index(request):
-    c = Context(request, {
-        'tags': categories.get_list(order_by=['-name']),
-    })
+    c = Context(request, tags=categories.get_list(order_by=['-name']))
     t = template_loader.get_template('blog/feeds_index')
     return HttpResponse(t.render(c))
 
@@ -179,11 +166,8 @@ def preview_comment(request, year, month, day, slug):
 
     comment.save()
 
-    c = Context(request, {
-        'post': p,
-        'markdown_content': request.POST['content'],
-        'comment': comment,
-    })
+    c = Context(request, post=p, comment=comment,
+                         markdown_content=request.POST['content'])
     t = template_loader.get_template('blog/preview-comment')
     return HttpResponse(t.render(c))
 
