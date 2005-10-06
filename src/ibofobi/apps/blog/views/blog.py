@@ -223,6 +223,9 @@ def post_comment(request, year, month, day, slug):
               comment_posted.render(template.Context(dict(comment=c))),
               SERVER_EMAIL, [a[1] for a in ADMINS], True)
 
+    c.email = request.POST['email']
+    c.url = request.POST['url']
+    c.content = safe_markdown.render(request.POST['content'])
     c.previewed = True
     c.save()
 
