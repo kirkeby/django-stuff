@@ -3,7 +3,7 @@ from django.core.cache import cache
 from django.conf import settings
 from django.models import auth
 
-from ibofobi.apps.blog.templatetags.markdown import markdown
+from ibofobi.apps.blog.markdown import markdown
 
 class Category(meta.Model):
     name = meta.CharField('name', maxlength=30)
@@ -91,7 +91,7 @@ class Post(meta.Model):
             key = 'ibofobi.blog.markdown_cache.' + self.get_absolute_url()
             rendered = cache.get(key)
         if not rendered:
-            rendered = markdown(self.content, None)
+            rendered = markdown(self.content)
         if cache_seconds:
             cache.set(key, rendered, cache_seconds)
         return rendered
