@@ -3,7 +3,7 @@ from django.core import template_loader
 from django.core.mail import send_mail
 from django.conf.settings import TEMPLATE_DIRS
 from django.conf.settings import ADMINS, SERVER_EMAIL
-from django.core.extensions import DjangoContext as Context
+from django.core.extensions import DjangoContext
 from django.models.blog import posts
 from django.models.blog import categories
 from django.models.blog import comments
@@ -19,12 +19,15 @@ from ibofobi.apps.blog.templatetags import safe_markdown
 import os
 import datetime
 
+class Context(DjangoContext):
+    def __init__(self, request, **kwargs):
+        DjangoContext.__init__(self, request, kwargs)
+        self['settings'] = settings
+
 atom_content_type = 'application/xml; charset=utf-8'
 
 def latest(request, format=None):
-    c = Context(request, {
-        'posts': posts.get_list(listed__exact=True, limit=5, order_by=['-posted']),
-    })
+    c = Context(request, posts=posts.get_list(listed__exact=True, limit=5, order_by=['-posted']))
     if format == 'atom':
         t = template_loader.get_template('blog/atom.xml')
         ct = atom_content_type

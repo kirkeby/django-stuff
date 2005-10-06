@@ -11,12 +11,15 @@ class Category(meta.Model):
 
     class META:
         module_name = 'categories'
+        module_constants = {
+            'settings': settings,
+        }
         verbose_name_plural = 'categories'
 
         admin = meta.Admin()
 
     def get_absolute_url(self):
-        return '/blog/tags/%s/' % self.slug
+        return '%s/tags/%s/' % (settings.BLOG_URL, self.slug)
 
     def get_latest_post(self):
         p = self.get_post_list(listed__exact=True, order_by=['-posted'], limit=1)
@@ -67,12 +70,14 @@ class Post(meta.Model):
 
     def _pre_save(self):
         if not self.tag:
-            self.tag = 'tag:ibofobi.dk,%d-%02d-%02d:%s' \
-                       % (self.posted.year, self.posted.month,
-                          self.posted.day, self.get_absolute_url())
+            fmt = getattr(settings, 'BLOG_TAG_FORMAT', 'tag:%s/archive/%d/%02d/%02d/%s/' % (settings.BLOG_URL, self.posted.year, self.posted.month, self.posted.day, self.slug))
+            self.tag = fmt % dict(year=self.posted.year,
+                                  month=self.posted.month,
+                                  day=self.posted.day,
+                                  slug=self.slug)
 
     def get_absolute_url(self):
-        return '/blog/archive/%d/%02d/%02d/%s/' % (self.posted.year, self.posted.month, self.posted.day, self.slug)
+        return '%s/archive/%d/%02d/%02d/%s/' % (settings.BLOG_URL, self.posted.year, self.posted.month, self.posted.day, self.slug)
 
     def get_next_post(self):
         return get_object(posted__gt=self.posted,
