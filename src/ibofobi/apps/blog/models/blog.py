@@ -107,7 +107,7 @@ class Post(meta.Model):
         return rendered
 
     def get_previewed_comment_list(self):
-        return self.get_comment_list(previewed__exact=True)
+        return self.get_comment_list(previewed__exact=True, order_by=['posted'])
     def get_previewed_comment_count(self):
         return self.get_comment_count(previewed__exact=True)
 
