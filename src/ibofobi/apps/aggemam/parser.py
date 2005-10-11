@@ -36,7 +36,12 @@ def sanitize_posts(posts):
     } for post in posts]
 
 def sanitize_guid(post):
-    return post['id'].encode('utf-8')
+    if post.has_key('id'):
+        return post['id'].encode('utf-8')
+    elif post.has_key('link'):
+        return post['link'].encode('utf-8')
+    else:
+        raise AssertionError, `post`
 
 def sanitize_timestamp(post, name):
     parsed = post.get(name + '_parsed')

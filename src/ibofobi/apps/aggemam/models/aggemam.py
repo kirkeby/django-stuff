@@ -17,13 +17,15 @@ class Message(meta.Model):
             list_display = ['happened', 'severity', 'short'],
             list_filter = ['happened', 'severity'],
         )
-        get_latest_by = ['happened']
+        get_latest_by = 'happened'
 
     def __repr__(self):
         return self.short
 
 class Feed(meta.Model):
     update = meta.BooleanField()
+    next_update = meta.DateTimeField(auto_now_add=True)
+    update_interval = meta.IntegerField(default=300) # minutes
 
     url = meta.URLField(unique=True)
     link = meta.URLField(blank=True, null=True)
@@ -43,6 +45,7 @@ class Feed(meta.Model):
 
 RESULT_CHOICES = (
     ('ok', 'Ok'),
+    ('no', 'No changes'),
     ('rm', 'Gone'),
     ('er', 'Error'),
     ('ot', 'Other'),
@@ -53,14 +56,14 @@ class FeedUpdate(meta.Model):
     result = meta.CharField(maxlength=2, choices=RESULT_CHOICES)
     processed = meta.BooleanField()
 
-    http_status_code = meta.IntegerField()
+    http_status_code = meta.IntegerField(blank=True, null=True)
     http_last_mod = meta.CharField(maxlength=100, blank=True, null=True)
     http_etag = meta.CharField(maxlength=100, blank=True, null=True)
     http_headers = meta.TextField(blank=True, null=True)
     http_content = meta.TextField(blank=True, null=True)
 
     class META:
-        get_latest_by = ['fetched']
+        get_latest_by = 'fetched'
 
         admin = meta.Admin(
             list_display = ['fetched', 'feed', 'result', 'processed'],
@@ -72,11 +75,11 @@ class FeedUpdate(meta.Model):
 
 class Post(meta.Model):
     feed = meta.ForeignKey(Feed)
-    guid = meta.CharField(maxlength=100)
+    guid = meta.CharField(maxlength=300)
     fetched = meta.DateTimeField(auto_now_add=True)
 
     posted = meta.DateTimeField()
-    title = meta.CharField(maxlength=100, blank=True, null=True)
+    title = meta.CharField(maxlength=300, blank=True, null=True)
     author = meta.CharField(maxlength=100, blank=True, null=True)
     category = meta.CharField(maxlength=100, blank=True, null=True)
     summary = meta.TextField(blank=True, null=True)
@@ -84,7 +87,8 @@ class Post(meta.Model):
 
     class META:
         unique_together = (('feed', 'guid'),)
-        get_latest_by = ['fetched']
+        get_latest_by = 'posted'
+        ordering = ['-posted', '-fetched']
 
         admin = meta.Admin(
             list_filter = ['posted'],
