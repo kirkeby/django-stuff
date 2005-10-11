@@ -16,6 +16,6 @@ class Fetcher:
         r = c.getresponse()
         self.status = r.status
         self.reason = r.reason
-        self.headers = '\n'.join([ ': '.join(h) for h in r.getheaders() ])
+        self.headers = ''.join(r.msg.headers)
         self.body = r.read()
         c.close()

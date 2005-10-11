@@ -28,7 +28,6 @@ class Feed(meta.Model):
     url = meta.URLField(unique=True)
     link = meta.URLField(blank=True, null=True)
     title = meta.CharField(maxlength=100, blank=True, null=True)
-    author = meta.CharField(maxlength=100, blank=True, null=True)
 
     class META:
         admin = meta.Admin(
@@ -69,7 +68,7 @@ class FeedUpdate(meta.Model):
         )
 
     def __repr__(self):
-        return repr(self.get_feed()) + ': ' + self.result + ' at ' + self.fetched.strftime('%Y-%m-%d %H:%M')
+        return repr('Feed update %r' % self.id)
 
 class Post(meta.Model):
     feed = meta.ForeignKey(Feed)
@@ -88,14 +87,13 @@ class Post(meta.Model):
         get_latest_by = ['fetched']
 
         admin = meta.Admin(
-            list_filter = ['fetched'],
+            list_filter = ['posted'],
+            list_display = ['title', 'feed', 'posted'],
         )
 
     def __repr__(self):
         if self.title:
             return self.title
-        elif self.link:
-            return self.link
         else:
             return self.guid
 

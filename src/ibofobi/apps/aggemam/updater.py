@@ -1,6 +1,10 @@
 from django.models.aggemam import feeds
 from django.models.aggemam import feedupdates
 from django.models.aggemam import messages
+from django.models.aggemam import posts
+from django.models.aggemam import links
+
+from django.core.db import db
 
 import sys
 import traceback
@@ -36,46 +40,64 @@ for feed in feeds.get_list(update__exact=True):
         fu.http_content = f.body
         fu.save()
 
-        fu = feedupdates.get_object(pk=fu.id) # FIXME
-        severity = 3
-        short = 'Created feed-update %r' % fu
-        detailed = None
+        #fu = feedupdates.get_object(pk=fu.id) # FIXME
+
+        m = messages.Message(severity=3,
+                             short='Fetched feed %s' % feed,
+                             detailed=None)
+        m.save()
+
+        db.commit()
 
     except:
-        severity = 9
-        short = 'Error updating feed %r' % feed
-        e, v, t = sys.exc_info()
-        detailed = '\n'.join(traceback.format_exception(e, v, t))
-
-    messages.Message(severity=severity, short=short, detailed=detailed).save()
+        db.rollback()
+        
+        traceback.print_exception(*(sys.exc_info()))
 
 for update in feedupdates.get_list(processed__exact=False):
     print repr(update)
 
     try:
-        update.processed = True
-        update.save()
+        feed = update.get_feed()
 
-        f = parser.parse_feed(update.http_content)
+        feed_prime, posts_prime = parser.parse_feed(update.http_content,
+                                                    feed.url)
 
-        feed.title = f['title'].encode('utf8')
-        feed.author = f['author'].encode('utf8')
-        feed.link = f['link'].encode('utf8')
+        feed.title = feed_prime['title']
+        feed.link = feed_prime['link']
         feed.save()
 
-        for p in f['posts']:
-            post = posts.Post(feed=feed, guid=p['guid'])
-            post.title = p['title'].encode('utf8')
+        for p in posts_prime:
+            if posts.get_count(guid__exact=p['guid']):
+                continue
 
-        severity = 3
-        short = 'Processed feed-update %r' % update
-        detailed = None
+            post = posts.Post(feed=feed, guid=p['guid'])
+            post.posted = p['posted']
+            post.title = p['title']
+            post.author = p['author'] or feed_prime['author']
+            post.category = p['category']
+            post.summary = p['summary']
+            post.content = p['content']
+            post.save()
+
+            for l in p['links']:
+                link = links.Link(post=post)
+                link.href = l['href']
+                link.type = l['type']
+                link.title = l['title']
+                link.save()
+
+        m = messages.Message(severity=3,
+                             short='Processed %s' % update,
+                             detailed=None)
+        m.save()
+
+        #update.processed = True
+        update.save()
+
+        db.commit()
 
     except:
-        raise
-        severity = 9
-        short = 'Error processing feed-update %r' % update
-        e, v, t = sys.exc_info()
-        detailed = '\n'.join(traceback.format_exception(e, v, t))
-
-    messages.Message(severity=severity, short=short, detailed=detailed).save()
+        db.rollback()
+    
+        traceback.print_exception(*(sys.exc_info()))
