@@ -11,7 +11,7 @@ meta_referrers = (
         r'^http://([a-z]+\.)?ibofobi\.dk/'),
     (None, None,
         r'^(?!http://)'),
-    ('Google', 'http://www.google.com/',
+    ('Google', 'http://www.google.(com|[a-z]+\.[a-z]+)/',
         r'^http://www\.google\.[a-z]+/'),
     ('Bloglines', 'http://www.bloglines.com/',
         r'^http://(www\.)?bloglines\.com/'),
