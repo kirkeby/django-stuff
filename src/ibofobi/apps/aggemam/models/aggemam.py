@@ -76,13 +76,12 @@ class Post(meta.Model):
     guid = meta.CharField(maxlength=100)
     fetched = meta.DateTimeField(auto_now_add=True)
 
-    link = meta.URLField(blank=True, null=True)
     posted = meta.DateTimeField()
     title = meta.CharField(maxlength=100, blank=True, null=True)
     author = meta.CharField(maxlength=100, blank=True, null=True)
     category = meta.CharField(maxlength=100, blank=True, null=True)
-    description = meta.TextField(blank=True, null=True)
     summary = meta.TextField(blank=True, null=True)
+    content = meta.TextField(blank=True, null=True)
 
     class META:
         unique_together = (('feed', 'guid'),)
@@ -99,3 +98,15 @@ class Post(meta.Model):
             return self.link
         else:
             return self.guid
+
+class Link(meta.Model):
+    post = meta.ForeignKey(Post)
+    href = meta.URLField()
+    type = meta.CharField(maxlength=80, blank=True, null=True)
+    title = meta.CharField(maxlength=80, blank=True, null=True)
+
+    class META:
+        admin = meta.Admin()
+
+    def __repr__(self):
+        return self.title or self.href

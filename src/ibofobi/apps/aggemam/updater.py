@@ -56,12 +56,16 @@ for update in feedupdates.get_list(processed__exact=False):
         update.processed = True
         update.save()
 
-        p = parser.parse_feed(update.http_content)
+        f = parser.parse_feed(update.http_content)
 
-        feed.title = p['title'].encode('utf8')
-        feed.author = p['author'].encode('utf8')
-        feed.link = p['link'].encode('utf8')
+        feed.title = f['title'].encode('utf8')
+        feed.author = f['author'].encode('utf8')
+        feed.link = f['link'].encode('utf8')
         feed.save()
+
+        for p in f['posts']:
+            post = posts.Post(feed=feed, guid=p['guid'])
+            post.title = p['title'].encode('utf8')
 
         severity = 3
         short = 'Processed feed-update %r' % update
