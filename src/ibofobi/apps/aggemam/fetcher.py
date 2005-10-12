@@ -9,7 +9,7 @@ class Fetcher:
             urlparse.urlparse(self.url)
 
         self.request_headers = {
-            #'User-Agent': 'Aggemam
+            'User-Agent': 'Aggemam (+http://ibofobi.dk/stuff/aggemam/)',
         }
         self.status = self.reason = self.headers = self.body = None
     

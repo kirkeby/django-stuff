@@ -1,4 +1,5 @@
 from django.core import meta
+from django.models import auth
 
 SEVERITY_CHOICES = (
     (0, 'Debug'),
@@ -34,7 +35,7 @@ class Feed(meta.Model):
     class META:
         admin = meta.Admin(
             list_display = ['url', 'title', 'update'],
-            list_filter = ['update'],
+            list_filter = ['update', 'next_update'],
         )
 
     def __repr__(self):
@@ -71,7 +72,7 @@ class FeedUpdate(meta.Model):
         )
 
     def __repr__(self):
-        return repr('Feed update %r' % self.id)
+        return 'Feed update %r' % self.id
 
 class Post(meta.Model):
     feed = meta.ForeignKey(Feed)
@@ -91,8 +92,8 @@ class Post(meta.Model):
         ordering = ['-posted', '-fetched']
 
         admin = meta.Admin(
-            list_filter = ['posted'],
-            list_display = ['title', 'feed', 'posted'],
+            list_filter = ['posted', 'fetched'],
+            list_display = ['__repr__', 'feed', 'posted', 'fetched'],
         )
 
     def __repr__(self):
@@ -101,6 +102,13 @@ class Post(meta.Model):
         else:
             return self.guid
 
+    def _module_get_unread_for_user(user):
+        return get_list(
+                tables=['aggemam_subscriptions'],
+                where=['aggemam_subscriptions.user_id=%d' % user.id,
+                       'aggemam_subscriptions.feed_id=aggemam_posts.feed_id'],
+            )
+            
 class Link(meta.Model):
     post = meta.ForeignKey(Post)
     href = meta.URLField()
@@ -112,3 +120,15 @@ class Link(meta.Model):
 
     def __repr__(self):
         return self.title or self.href
+
+class Subscription(meta.Model):
+    user = meta.ForeignKey(auth.User)
+    feed = meta.ForeignKey(Feed)
+
+MARK_CHOICES = (
+    ('rd', 'Read'),
+)
+class UserPostMarks(meta.Model):
+    user = meta.ForeignKey(auth.User)
+    post = meta.ForeignKey(Post)
+    mark = meta.CharField(maxlength=2, choices=MARK_CHOICES)

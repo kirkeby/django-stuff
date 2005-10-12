@@ -1,0 +1,15 @@
+{% load json %}
+{
+    'posts': [
+    {% for post in posts %}
+        {
+            'id': {{ post.id }},
+            'feed_id': {{ post.feed_id }},
+            'title': {{ post.title|json_escape }},
+            'summary': {{ post.summary|json_escape }},
+
+            'xhtml': "<h2>{{ post.title }}</h2>",
+        },
+    {% endfor %}
+    ],
+}

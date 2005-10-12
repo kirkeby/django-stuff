@@ -1,0 +1,11 @@
+{% extends "aggemam/base" %}
+{% block title %}Post list{% endblock %}
+{% block content %}
+<h1>Post list</h1>
+
+<ul>
+{% for post in posts %}
+    <li>{{ post.get_feed }} --- <strong>{{ post.title }}</strong></li>
+{% endfor %}
+</ul>
+{% endblock %}

@@ -3,6 +3,7 @@ import datetime
 import commands
 from StringIO import StringIO
 from popen2 import popen3
+from django.utils.html import escape
 
 def parse_feed(text, base):
     """parse_feed(string) -> (feed, posts)"""
@@ -27,10 +28,10 @@ def sanitize_posts(posts):
         'posted': sanitize_timestamp(post, 'issued') or
                   sanitize_timestamp(post, 'modified') or
                   datetime.datetime.now(),
-        'title': post.get('title', '').encode('utf-8'),
-        'author': post.get('author', '').encode('utf-8'),
-        'category': post.get('category', '').encode('utf-8'),
-        'summary': post.get('summary', '').encode('utf-8'),
+        'title': sanitize_field(post, 'title'),
+        'author': sanitize_field(post, 'author'),
+        'category': sanitize_field(post, 'category'),
+        'summary': sanitize_field(post, 'summary'),
         'content': sanitize_content(post),
         'links': sanitize_links(post.get('links', [])),
     } for post in posts]
@@ -59,7 +60,14 @@ def sanitize_content(post):
                    type_scores.get(b['type'], 0))
         
     post['content'].sort(cmp_types)
-    return sanitize_field(post['content'][0])
+    return sanitize_detailed(post['content'][0])
+
+def sanitize_field(post, name):
+    detailed = post.get(name + '_detail', None)
+    if detailed is None:
+        text = post.get(name, '')
+        return sanitize_text(text)
+    return sanitize_detailed(detailed)
 
 def sanitize_links(links):
     return [ {
@@ -69,7 +77,7 @@ def sanitize_links(links):
         'rel': link.get('rel', '').encode('utf-8'),
     } for link in links ]
 
-def sanitize_field(field):
+def sanitize_detailed(field):
     if not field:
         return ''
     value = field.get('value', '')
@@ -85,7 +93,7 @@ def sanitize_field(field):
         raise ValueError, 'unknown type: %s' % field['type']
 
 def sanitize_text(input):
-    return abml.quote(input)
+    return escape(input).encode('utf-8')
 
 def sanitize_html(input):
     if not input:

@@ -1,0 +1,12 @@
+Subject: {{ post.title|striptags }}
+Date: {{ post.posted }}
+From: "{{ post.author }}" <aggemam@mel.ibofobi.dk>
+To: "{{ user.firstname }}" <{{ user.email }}>
+Content-Type: text/html; charset=utf-8
+
+<html>
+<head>
+<title>{{ post.title|striptags }}</title>
+</head>
+<body>{{ post.content }}</body>
+</html>
