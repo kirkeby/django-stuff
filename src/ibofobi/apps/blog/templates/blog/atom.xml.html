@@ -5,7 +5,7 @@
     <link rel='alternate' type='text/html'
           href='{{ settings.BLOG_URL }}' />
     <author><name>{{ settings.BLOG_AUTHOR }}</name></author>
-    <modified>{{ posts.0.posted|date:"Y-m-d" }}T{{ posts.0.posted|date:"H:i:sO" }}</modified>
+    <modified>{{ posts.0.posted|date:"Y-m-d\\TH:i:sO" }}</modified>
 
     <info mode="xml" type="application/xhtml+xml">
         <div xmlns="http://www.w3.org/1999/xhtml">This is a syndicated
@@ -20,8 +20,8 @@
     {% for post in posts %}
     <entry>
         <id>{{ post.tag }}</id>
-        <issued>{{ post.posted|date:"Y-m-d" }}T{{ post.posted|date:"H:i:sO" }}</issued>
-        <modified>{{ post.posted|date:"Y-m-d" }}T{{ post.posted|date:"H:i:sO" }}</modified>
+        <issued>{{ post.posted|date:"Y-m-d\\TH:i:sO" }}</issued>
+        <modified>{{ post.posted|date:"Y-m-d\\TH:i:sO" }}</modified>
         <link rel='alternate' type='text/html'
               href='{{ post.get_absolute_url }}' />
         <title type='application/xhtml+xml'>
