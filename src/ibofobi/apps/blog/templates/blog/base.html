@@ -1,2 +1,19 @@
-{% extends "base" %}
-{% block title %}{% block pagetitle %}{% endblock %} [{{ settings.BLOG_TITLE }}]{% endblock %}
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <title>{% block title %}{% block pagetitle %}{% endblock %} [{{ settings.BLOG_TITLE }}]{% endblock %}</title>
+
+    <meta name='author' content='{{ settings.BLOG_AUTHOR }}' />
+
+    <link rel='alternate' type='application/atom+xml'
+          title='Atom feed for {{ settings.BLOG_TITLE }}'
+          href='{{ settings.BLOG_URL }}/feeds/latest' />
+</head>
+
+<body>
+{% block content %}No content?!{% endblock %}
+</body>
+</html>
