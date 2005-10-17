@@ -11,7 +11,7 @@ from django.utils.httpwrappers import HttpResponse
 from django.utils.httpwrappers import HttpResponseRedirect
 from django.core.exceptions import Http404
 from django.core.db import db
-from django.core.defaultfilters import slugify
+from django.core.template.defaultfilters import slugify
 from django.conf import settings
 
 from ibofobi.apps.blog.templatetags import safe_markdown

@@ -41,7 +41,7 @@ Things I might add:
 
 import re
 
-from django.core.defaultfilters import escape
+from django.core.template.defaultfilters import escape
 
 def render(doc):
     lines = doc.split('\n')
