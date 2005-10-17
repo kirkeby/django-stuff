@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('ibofobi.apps.fresh.views.status',
+urlpatterns = patterns('ibofobi.apps.fresh.views.admin',
     (r'^referrers/$', 'referrers'),
 )
