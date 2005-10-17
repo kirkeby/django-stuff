@@ -36,7 +36,8 @@ def referrers(request):
     for ref in referrers:
         ref['text'] = ref['referrer']
         ref['url'] = ref['referrer']
-        ref['count'] = pageviews.get_count(referrer__exact=ref['url'])
+        ref['count'] = pageviews.get_count(referrer__exact=ref['url'],
+                                           served__gt=oldest)
 
     for text, url, regex in meta_referrers:
         regex = re.compile(regex)
@@ -63,7 +64,8 @@ def page_views(request):
                                 served__gt=oldest) 
 
     for hit in hits:
-        hit['count'] = pageviews.get_count(url__exact=hit['url'])
+        hit['count'] = pageviews.get_count(url__exact=hit['url'],
+                                           served__gt=oldest)
 
     hits.sort(lambda a, b: cmp(b['count'], a['count']))
 
