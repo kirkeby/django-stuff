@@ -1,9 +1,10 @@
 from django.core import template_loader
 from django.utils.httpwrappers import HttpResponse
-from django.core.extensions import DjangoContext as Context
+from django.core.extensions import render_to_response
 
 from django.models.fresh import pageviews
 
+import datetime
 import re
 
 meta_referrers = (
@@ -11,15 +12,26 @@ meta_referrers = (
         r'^http://([a-z]+\.)?ibofobi\.dk/'),
     (None, None,
         r'^(?!http://)'),
-    ('Google', 'http://www.google.(com|[a-z]+\.[a-z]+)/',
-        r'^http://www\.google\.[a-z]+/'),
+    ('Google', 'http://www.google.com/',
+        r'^http://www\.google\.([a-z]+|[a-z]+\.[a-z]+)/search\?'),
     ('Bloglines', 'http://www.bloglines.com/',
         r'^http://(www\.)?bloglines\.com/'),
 )
 
+def index(request):
+    return render_to_response('fresh/index', {})
+
 def referrers(request):
+    if request.GET.has_key('max-age'):
+        max_age = int(request.GET['max-age'])
+        max_age = datetime.timedelta(days=max_age)
+        oldest = datetime.datetime.now() - max_age
+    else:
+        oldest = None
+    
     referrers = pageviews.get_values(distinct=True, fields=['referrer'],
-                                     referrer__ne='')
+                                     referrer__ne='',
+                                     served__gt=oldest)
 
     for ref in referrers:
         ref['text'] = ref['referrer']
@@ -34,9 +46,30 @@ def referrers(request):
             referrers.append({'url': url, 'text': text,
                               'count': sum([ r['count'] for r in these ]) })
 
-    referrers.sort(lambda a, b: cmp(a['count'], b['count']))
-    referrers.reverse()
+    referrers.sort(lambda a, b: cmp(b['count'], a['count']))
 
-    t = template_loader.get_template('fresh/referrers')
-    c = Context(request, { 'referrers': referrers, })
-    return HttpResponse(t.render(c))
+    return render_to_response('fresh/referrers', {
+            'referrers': referrers, 'oldest': oldest, })
+
+def page_views(request):
+    if request.GET.has_key('max-age'):
+        max_age = int(request.GET['max-age'])
+        max_age = datetime.timedelta(days=max_age)
+        oldest = datetime.datetime.now() - max_age
+    else:
+        oldest = None
+    
+    hits = pageviews.get_values(distinct=True, fields=['url'],
+                                served__gt=oldest) 
+
+    for hit in hits:
+        hit['count'] = pageviews.get_count(url__exact=hit['url'])
+
+    hits.sort(lambda a, b: cmp(b['count'], a['count']))
+
+    return render_to_response('fresh/page-views',
+            { 'hits': hits, 'oldest': oldest, })
+
+def live_page_views(request):
+    hits = pageviews.get_list(order_by=['-served'], limit=10)
+    return render_to_response('fresh/live-page-views', { 'hits': hits })

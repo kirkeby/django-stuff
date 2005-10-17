@@ -1,0 +1,15 @@
+{% extends "fresh/base" %}
+{% block title %}Referrers{% endblock %}
+{% block content %}
+<ul>
+{% if oldest %}
+<h1>Top pages from the past {{ oldest|timesince }}</h1>
+{% else %}
+<h1>Top pages since the big bang</h1>
+{% endif %}
+{% for hit in hits %}
+    <li>{{ hit.count }} hit{{ hit.count|pluralize }} to <a
+    href="{{ hit.url|escape }}">{{ hit.url }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

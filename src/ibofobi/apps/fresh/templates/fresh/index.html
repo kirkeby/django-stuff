@@ -1,0 +1,31 @@
+{% extends "fresh/base" %}
+{% block content %}
+<h1>Fresh views</h1>
+
+<div class='module'>
+    <h2>Live statistics</h2>
+    <table width='100%'>
+    <tr><th><a href='live/page-views/'>Page-views</a></th></tr>
+    </table>
+</div>
+
+<div class='module'>
+    <h2>Referrers</h2>
+    <table width='100%'>
+    <tr><th><a href='referrers/?max-age=1'>Past 24 hours</a></th></tr>
+    <tr><th><a href='referrers/?max-age=7'>Past 7 days</a></th></tr>
+    <tr><th><a href='referrers/?max-age=30'>Past 30 days</a></th></tr>
+    <tr><th><a href='referrers/'>Forever</a></th></tr>
+    </table>
+</div>
+
+<div class='module'>
+    <h2>Top pages</h2>
+    <table width='100%'>
+    <tr><th><a href='page-views/?max-age=1'>Past 24 hours</a></th></tr>
+    <tr><th><a href='page-views/?max-age=7'>Past 7 days</a></th></tr>
+    <tr><th><a href='page-views/?max-age=30'>Past 30 days</a></th></tr>
+    <tr><th><a href='page-views/'>Forever</a></th></tr>
+    </table>
+</div>
+{% endblock %}

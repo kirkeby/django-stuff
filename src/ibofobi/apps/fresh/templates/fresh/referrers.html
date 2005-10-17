@@ -1,7 +1,12 @@
-{% extends "base" %}
+{% extends "fresh/base" %}
 {% block title %}Referrers{% endblock %}
 {% block content %}
 <ul>
+{% if oldest %}
+<h1>Referrers from the past {{ oldest|timesince }}</h1>
+{% else %}
+<h1>Referrers since the big bang</h1>
+{% endif %}
 {% for referrer in referrers %}
     <li>{{ referrer.count }} hit{{ referrer.count|pluralize }} from <a
     href="{{ referrer.url|escape }}">{{ referrer.text|escape }}</a></li>
