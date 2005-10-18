@@ -2,7 +2,9 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('ibofobi.apps.scryer.views.admin',
     (r'^$', 'index'),
-    (r'^page-views/$', 'page_views'),
+    (r'^top-pages/$', 'top_pages'),
     (r'^referrers/$', 'referrers'),
-    (r'^live/page-views/$', 'live_page_views'),
+    (r'^page-views/$', 'page_views'),
+    (r'^sessions/$', 'sessions'),
+    (r'^sessions/(?P<session_key>[a-z0-9]+)/$', 'view_session'),
 )

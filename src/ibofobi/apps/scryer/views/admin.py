@@ -1,7 +1,9 @@
 from django.core import template_loader
-from django.utils.httpwrappers import HttpResponse
 from django.core.extensions import render_to_response
+from django.core.exceptions import Http404
+from django.utils.httpwrappers import HttpResponse
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.db import db
 
 from django.models.scryer import pageviews
 
@@ -55,7 +57,14 @@ def referrers(request):
             'referrers': referrers, 'oldest': oldest, })
 referrers = staff_member_required(referrers)
 
-def page_views(request):
+def view_session(request, session_key):
+    session = pageviews.get_session(session_key)
+    if not session:
+        raise Http404()
+    return render_to_response('scryer/view_session', session)
+view_session = staff_member_required(view_session)
+
+def top_pages(request):
     if request.GET.has_key('max-age'):
         max_age = int(request.GET['max-age'])
         max_age = datetime.timedelta(days=max_age)
@@ -72,11 +81,20 @@ def page_views(request):
 
     hits.sort(lambda a, b: cmp(b['count'], a['count']))
 
-    return render_to_response('scryer/page-views',
+    return render_to_response('scryer/top_pages',
             { 'hits': hits, 'oldest': oldest, })
+top_pages = staff_member_required(top_pages)
+
+def page_views(request):
+    hits = pageviews.get_list(order_by=['-served'], limit=10)
+    return render_to_response('scryer/page_views', { 'hits': hits })
 page_views = staff_member_required(page_views)
 
-def live_page_views(request):
-    hits = pageviews.get_list(order_by=['-served'], limit=10)
-    return render_to_response('scryer/live-page-views', { 'hits': hits })
-live_page_views = staff_member_required(live_page_views)
+def sessions(request):
+    c = db.cursor()
+    c.execute('SELECT session_key FROM scryer_pageviews '
+              'GROUP BY session_key ORDER BY MAX(served) DESC '
+              'LIMIT 10')
+    session_keys = c.fetchall()
+    sessions = [ pageviews.get_session(sk) for sk, in session_keys ]
+    return render_to_response('scryer/sessions', locals())

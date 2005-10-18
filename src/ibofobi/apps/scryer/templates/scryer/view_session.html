@@ -1,0 +1,26 @@
+{% extends "scryer/base" %}
+{% block content %}
+<h1>Session &#8211; {{ session_key }}</h1>
+
+<div class='module'>
+<h2>Meta</h2>
+<table>
+<tr><th>Started</th> <td>{{ started|timesince }} ago</td></tr>
+<tr><th>Lasted</th> <td>{{ lasted }}</td></tr>
+<tr><th>Page-views</th> <td>{{ hits|length }}</td></tr>
+<tr><th>Client</th> <td>{{ client }}</td></tr>
+<tr><th>Browser</th> <td>{{ browser }}</td></tr>
+</table>
+</div>
+
+<h1>Page views</h1>
+{% for hit in hits %}
+<div class='module'>
+<h2><a href='http://{{ hit.get_site.domain}}{{ hit.url }}'>http://{{ hit.get_site.domain}}{{ hit.url }}</a></h2>
+<table>
+<tr><th>Served</th> <td>{{ hit.served|timesince }} ago</td></tr>
+<tr><th>Referrer</th> <td>{% if hit.referrer %}<a href='{{ hit.referrer|escape }}'>{{ hit.referrer|escape }}</a>{% else %}None{% endif %}</td></tr>
+</table>
+</div>
+{% endfor %}
+{% endblock %}

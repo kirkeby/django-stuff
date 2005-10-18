@@ -1,0 +1,13 @@
+{% extends "scryer/base" %}
+{% block content %}
+<h1>Last 10 active sessions</h1>
+
+{% for session in sessions %}
+<div class='module'>
+<h2><a href='{{session.session_key }}/'>{{ session.session_key }}</a></h2>
+<table>
+<tr><th>Last active</th> <td>{{ session.ended|timesince }} ago</td></tr>
+</table>
+</div>
+{% endfor %}
+{% endblock %}
