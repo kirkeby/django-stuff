@@ -100,6 +100,8 @@ def sanitize_html(input):
         return ''
 
     o, i, e = popen3('tidy -utf8 -asxml -quiet')
+    if not isinstance(input, unicode):
+        input = input.decode('utf-8', 'ignore') # FIXME ?!
     i.write(input.encode('utf-8')) ; i.close()
     xml = o.read() ; o.close()
     err = e.read() ; e.close()
