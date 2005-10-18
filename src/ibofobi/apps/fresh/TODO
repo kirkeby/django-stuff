@@ -1,0 +1,15 @@
+ * Find a decent name; scryer is nice (scrying is a general term for divination
+   using a crystal, mirrors, bowls of water, ink, or flames to induce visions.)
+
+ * <iholsman> if you really want me to go gah gah show link paths of the last X
+           users, or last X link paths or some such
+
+ * <iholsman> weed's nice feature is that it does stats by page title.. not just
+           the URL
+
+ * <iholsman> and weed is completly remote.. Ie no log parsing.. just uses a web
+           bug so I can merge multiple hosts together in one page
+
+ * <iholsman> (or filter by a single host if I want)
+
+ * Fix the javascript for non XMLHttpRequest-enabled browsers
