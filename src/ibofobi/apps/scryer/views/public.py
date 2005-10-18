@@ -35,13 +35,13 @@ def pageview(request):
         # reuse that session; this is a band-aid when the browser refuses
         # our cookie.
         if session_key is None:
+            oldest = datetime.datetime.now() - pageviews.session_lifetime
             hits = pageviews.get_list(ip_address__exact=ip,
+                                      served__gt=oldest,
                                       order_by=['-served'],
                                       limit=1)
             if hits:
-                diff = datetime.datetime.now() - hits[0].served
-                if diff.days == 0 and diff.seconds < 30 * 60:
-                    session_key = hits[0].session_key
+                session_key = hits[0].session_key
 
         # Finally, create a new session
         if session_key is None:
