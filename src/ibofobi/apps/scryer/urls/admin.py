@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('ibofobi.apps.fresh.views.admin',
+urlpatterns = patterns('ibofobi.apps.scryer.views.admin',
     (r'^$', 'index'),
     (r'^page-views/$', 'page_views'),
     (r'^referrers/$', 'referrers'),

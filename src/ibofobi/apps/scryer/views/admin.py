@@ -3,7 +3,7 @@ from django.utils.httpwrappers import HttpResponse
 from django.core.extensions import render_to_response
 from django.contrib.admin.views.decorators import staff_member_required
 
-from django.models.fresh import pageviews
+from django.models.scryer import pageviews
 
 import datetime
 import re
@@ -20,7 +20,7 @@ meta_referrers = (
 )
 
 def index(request):
-    return render_to_response('fresh/index', {})
+    return render_to_response('scryer/index', {})
 index = staff_member_required(index)
 
 def referrers(request):
@@ -51,7 +51,7 @@ def referrers(request):
 
     referrers.sort(lambda a, b: cmp(b['count'], a['count']))
 
-    return render_to_response('fresh/referrers', {
+    return render_to_response('scryer/referrers', {
             'referrers': referrers, 'oldest': oldest, })
 referrers = staff_member_required(referrers)
 
@@ -72,11 +72,11 @@ def page_views(request):
 
     hits.sort(lambda a, b: cmp(b['count'], a['count']))
 
-    return render_to_response('fresh/page-views',
+    return render_to_response('scryer/page-views',
             { 'hits': hits, 'oldest': oldest, })
 page_views = staff_member_required(page_views)
 
 def live_page_views(request):
     hits = pageviews.get_list(order_by=['-served'], limit=10)
-    return render_to_response('fresh/live-page-views', { 'hits': hits })
+    return render_to_response('scryer/live-page-views', { 'hits': hits })
 live_page_views = staff_member_required(live_page_views)

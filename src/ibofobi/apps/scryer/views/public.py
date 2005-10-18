@@ -1,10 +1,10 @@
-from django.models.fresh import pageviews
+from django.models.scryer import pageviews
 from django.utils.httpwrappers import HttpResponse
 
 from django.conf import settings
 
-def fresh(request):
-    if getattr(settings, 'FRESH_SKIP', False):
+def scryer(request):
+    if getattr(settings, 'SCRYER_SKIP', False):
         pass
 
     else:
