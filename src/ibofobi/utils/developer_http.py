@@ -224,7 +224,7 @@ class SocketTransport:
         self.sock.close()
         self.closed = True
 
-if __name__ == '__main__':
+def main(argv):
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter())
     log.addHandler(handler)
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     socket_fd = None
     max_requests = 1
 
-    opts, args = getopt.getopt(sys.argv[1:], '', ('socket-fd=', 'port=', 'bind=', 'max-requests='))
+    opts, args = getopt.getopt(argv[1:], '', ('socket-fd=', 'port=', 'bind=', 'max-requests='))
     for k, v in opts:
         if k == '--socket-fd':
             socket_fd = int(v)
@@ -281,8 +281,11 @@ if __name__ == '__main__':
                     warnings.warn('errno %d closing fd %d' % (eno, fd))
 
         print "Re-exec'ing myself"
-        os.execv(sys.argv[0], [sys.argv[0], '--socket-fd', str(sock.fileno()),
-                                            '--max-requests', str(max_requests)])
+        os.execv(argv[0], [argv[0], '--socket-fd', str(sock.fileno()),
+                                    '--max-requests', str(max_requests)])
 
     except KeyboardInterrupt:
-        sys.exit(0)
+        return 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
