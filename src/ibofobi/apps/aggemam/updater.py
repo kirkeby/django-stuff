@@ -22,10 +22,8 @@ min_update_interval = 60
 def fetch_feeds():
     for feed in feeds.get_list(update__exact=True,
                                next_update__lt=datetime.datetime.now()):
-        print feed.url
-
         if feed.get_feedupdate_count(processed__exact=False):
-            print 'skipping because of unprocessed updates'
+            #print '%s: skipping because of unprocessed updates' % feed.url
             continue
 
         try:
@@ -89,11 +87,10 @@ def fetch_feeds():
             db.rollback()
             
             traceback.print_exception(*(sys.exc_info()))
+            print
 
 def process_updates():
     for update in feedupdates.get_list(processed__exact=False):
-        print update
-
         try:
             feed = update.get_feed()
 
@@ -104,11 +101,26 @@ def process_updates():
             elif update.result == 'rm':
                 new_posts = 0
                 feed.update = False
+                feed.save()
+                print 'Feed %s is gone (http://admin.ibofobi.dk/aggemam/feedupdates/%d/)' % (update.id,)
+                print 'Disabling update of feed (http://admin.ibofobi.dk/aggemam/feeds/%d/)' % (feed.id,)
+                print
             elif update.result == 'er':
                 new_posts = 0
                 # FIXME -- set feed.update = False after N failed fetches?
+                print 'Update of feed %s (http://admin.ibofobi.dk/aggemam/feeds/%d/) failed' % (feed, feed.id)
+                print 'in feed-update %d (http://admin.ibofobi.dk/aggemam/feedupdates/%d/)' % (update.id, update.id)
+                print
+            elif update.result == 'ot':
+                new_posts = 0
+                feed.update = False
+                feed.save()
+                print 'Feed update %d (http://admin.ibofobi.dk/aggemam/feedupdates/%d/)' % (update.id, update.id)
+                print 'has an unknown HTTP status code (%d), needs manual handling.'
+                print 'Disabling update of feed (http://admin.ibofobi.dk/aggemam/feeds/%d/)' % (feed.id,)
+                print
             else:
-                raise AssertionError, update.result
+                raise `update.result`
 
             if new_posts:
                 feed.update_interval = int(feed.update_interval * ramp_up_factor)
@@ -130,6 +142,7 @@ def process_updates():
             db.rollback()
         
             traceback.print_exception(*(sys.exc_info()))
+            print
 
 def process_update_ok(feed, update):
     feed_prime, posts_prime = parser.parse_feed(update.http_content,
