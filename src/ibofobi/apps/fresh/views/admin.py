@@ -1,6 +1,7 @@
 from django.core import template_loader
 from django.utils.httpwrappers import HttpResponse
 from django.core.extensions import render_to_response
+from django.contrib.admin.views.decorators import staff_member_required
 
 from django.models.fresh import pageviews
 
@@ -20,6 +21,7 @@ meta_referrers = (
 
 def index(request):
     return render_to_response('fresh/index', {})
+index = staff_member_required(index)
 
 def referrers(request):
     if request.GET.has_key('max-age'):
@@ -51,6 +53,7 @@ def referrers(request):
 
     return render_to_response('fresh/referrers', {
             'referrers': referrers, 'oldest': oldest, })
+referrers = staff_member_required(referrers)
 
 def page_views(request):
     if request.GET.has_key('max-age'):
@@ -71,7 +74,9 @@ def page_views(request):
 
     return render_to_response('fresh/page-views',
             { 'hits': hits, 'oldest': oldest, })
+page_views = staff_member_required(page_views)
 
 def live_page_views(request):
     hits = pageviews.get_list(order_by=['-served'], limit=10)
     return render_to_response('fresh/live-page-views', { 'hits': hits })
+live_page_views = staff_member_required(live_page_views)
