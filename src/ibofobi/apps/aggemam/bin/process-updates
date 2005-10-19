@@ -77,6 +77,8 @@ def process_update_ok(feed, update):
     feed_prime, posts_prime = parser.parse_feed(update.http_content,
                                                 feed.url)
 
+    posts_prime.reverse()
+
     feed.title = feed_prime['title']
     feed.link = feed_prime['link']
     feed.save()
