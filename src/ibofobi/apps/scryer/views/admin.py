@@ -102,3 +102,4 @@ def sessions(request):
     session_keys = c.fetchall()
     sessions = [ pageviews.get_session(sk) for sk, in session_keys ]
     return render_to_response('scryer/sessions', request, locals())
+sessions = staff_member_required(sessions)
