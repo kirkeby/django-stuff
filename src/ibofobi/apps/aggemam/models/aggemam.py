@@ -86,6 +86,15 @@ class Post(meta.Model):
     summary = meta.TextField(blank=True, null=True)
     content = meta.TextField(blank=True, null=True)
 
+    def get_link(self):
+        """Get the most preferred alternate link."""
+        links = self.get_link_list()
+        if len(links) == 1:
+            return links[0]
+
+        else:
+            raise AssertionError
+
     class META:
         unique_together = (('feed', 'guid'),)
         get_latest_by = 'posted'
@@ -102,13 +111,22 @@ class Post(meta.Model):
         else:
             return self.guid
 
-    def _module_get_unread_for_user(user):
-        return get_list(
-                tables=['aggemam_subscriptions'],
-                where=['aggemam_subscriptions.user_id=%d' % user.id,
-                       'aggemam_subscriptions.feed_id=aggemam_posts.feed_id'],
-            )
-            
+    def _module_get_unread(user):
+        from django.core.db import db
+        c = db.cursor()
+        c.execute('''
+                SELECT aggemam_posts.id
+                FROM aggemam_posts, aggemam_subscriptions
+                WHERE aggemam_subscriptions.user_id = %d
+                AND aggemam_subscriptions.feed_id = aggemam_posts.feed_id
+                AND NOT EXISTS (SELECT * FROM aggemam_userpostmarks
+                                WHERE aggemam_userpostmarks.user_id = aggemam_subscriptions.user_id
+                                AND aggemam_userpostmarks.post_id = aggemam_posts.id
+                                AND aggemam_userpostmarks.mark = 'rd')
+                                
+                  ''' % user.id)
+        return [ get_object(pk=post_id) for post_id, in c.fetchall() ]
+
 class Link(meta.Model):
     post = meta.ForeignKey(Post)
     href = meta.URLField()
@@ -125,10 +143,13 @@ class Subscription(meta.Model):
     user = meta.ForeignKey(auth.User)
     feed = meta.ForeignKey(Feed)
 
+    def __repr__(self):
+        return 'User %r; feed %r' % (self.get_user(), self.get_feed())
+
 MARK_CHOICES = (
     ('rd', 'Read'),
 )
-class UserPostMarks(meta.Model):
+class UserPostMark(meta.Model):
     user = meta.ForeignKey(auth.User)
     post = meta.ForeignKey(Post)
     mark = meta.CharField(maxlength=2, choices=MARK_CHOICES)
