@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+
+from django.models.aggemam import feeds
+from django.models.aggemam import feedupdates
+from django.models.aggemam import messages
+
+from django.core.db import db
+
+from ibofobi.apps.aggemam.utils import fetcher
+
+import sys
+import traceback
+import socket
+import datetime
+
+def fetch_feeds():
+    for feed in feeds.get_list(update__exact=True,
+                               next_update__lt=datetime.datetime.now()):
+        if feed.get_feedupdate_count(processed__exact=False):
+            #print '%s: skipping because of unprocessed updates' % feed.url
+            continue
+
+        try:
+            f = fetcher.Fetcher(feed.url)
+
+            try:
+                latest_update = feedupdates.get_latest(feed__id__exact=feed.id,
+                                                       processed__exact=True,
+                                                       result__exact='ok')
+                if latest_update.http_etag:
+                    f.request_headers['If-None-Match'] = latest_update.http_etag
+                if latest_update.http_last_mod:
+                    f.request_headers['If-Modified-Since'] = latest_update.http_last_mod
+
+            except feedupdates.FeedUpdateDoesNotExist:
+                latest_update = None
+    
+            try:
+                f.fetch()
+            except socket.error:
+                fu = feedupdates.FeedUpdate(feed=feed, processed=False)
+                fu.result = 'er'
+                fu.save()
+
+                continue
+
+            if latest_update and f.body == latest_update.http_content:
+                # not modified
+                f.status = 304
+                f.body = ''
+
+            fu = feedupdates.FeedUpdate(feed=feed, processed=False)
+            if f.status == 200:
+                fu.result = 'ok'
+            elif f.status == 304:
+                fu.result = 'no'
+            elif f.status == 404 or f.status == 410:
+                fu.result = 'rm'
+            elif f.status == 500:
+                fu.result = 'er'
+            else:
+                fu.result = 'ot'
+
+            fu.http_status_code = f.status
+            fu.http_last_mod = f.parsed.get('Last-Modified')
+            fu.http_etag = f.parsed.get('ETag')
+            fu.http_headers = f.headers
+            fu.http_content = f.body
+            fu.save()
+
+            #fu = feedupdates.get_object(pk=fu.id) # FIXME
+
+            m = messages.Message(severity=3,
+                                 short='Fetched feed %s' % feed,
+                                 detailed=None)
+            m.save()
+
+            db.commit()
+
+        except:
+            db.rollback()
+            
+            traceback.print_exception(*(sys.exc_info()))
+            print
+
+if __name__ == '__main__':
+    fetch_feeds()
