@@ -1,12 +1,24 @@
 Subject: {{ post.title|striptags }}
-Date: {{ post.posted }}
-From: "{{ post.author }}" <aggemam@mel.ibofobi.dk>
-To: "{{ user.firstname }}" <{{ user.email }}>
+Date: {{ post.posted|date:"D, d M Y H:i:s T" }}
+From: "{{ post.get_feed.title }}" <aggemam@ibofobi.dk>
+To: <{{ user.email }}>
 Content-Type: text/html; charset=utf-8
 
 <html>
 <head>
 <title>{{ post.title|striptags }}</title>
 </head>
-<body>{{ post.content }}</body>
+<body>
+<h1><a href='{{ post.get_link }}'>{{ post.title }}</a></h1>
+
+{% if post.content %}
+{{ post.content }}
+{% else %}
+{{ post.summary }}
+{% endif %}
+
+<hr />
+Posted to {{ post.get_feed.title }}.
+Mailed by Aggemam.
+</body>
 </html>
