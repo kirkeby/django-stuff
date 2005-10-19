@@ -14,8 +14,8 @@
     }
 
     if(req) {
-        var path = '/scryer/?url=' + document.location;
-        path = path + '&ref=' + document.referrer;
+        var path = '/scryer/?url=' + escape(document.location);
+        path = path + '&ref=' + escape(document.referrer);
         path = path + '&qux=' + (new Date()).getTime();
         req.open("GET", path, true);
         req.send("");
