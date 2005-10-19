@@ -20,4 +20,5 @@
         req.open("GET", path, true);
         req.send("");
     }
+}
 )();
