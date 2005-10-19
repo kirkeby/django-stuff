@@ -1,15 +1,27 @@
 #!/usr/bin/env python
 
+import smtplib
+
 from django.core.template_loader import get_template
 from django.core.template import Context
+from django.conf.settings import EMAIL_HOST
 
 from django.models.aggemam import posts
 from django.models.auth import users
 
 template = get_template('aggemam/email')
 
+do_send_mail = 0
+sender = 'aggemam@ibofobi.dk'
+
+if do_send_mail:
+    server = smtplib.SMTP(EMAIL_HOST)
 for user in users.get_list():
-    for post in posts.get_unread_for_user(user):
-        post.add_userpostmarks(user, 'rd')
-        print template.render(Context({ 'user': user, 'post': post }))
-        break
+    for post in posts.get_unread(user):
+        if do_send_mail:
+            txt = template.render(Context(locals()))
+            server.sendmail(sender, user.email, txt)
+
+        post.add_userpostmark(user, 'rd')
+if do_send_mail:
+    server.quit()
