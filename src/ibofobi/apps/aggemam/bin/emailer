@@ -11,7 +11,7 @@ from django.models.auth import users
 
 template = get_template('aggemam/email')
 
-do_send_mail = 0
+do_send_mail = 1
 sender = 'aggemam@ibofobi.dk'
 
 if do_send_mail:
