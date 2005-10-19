@@ -159,6 +159,7 @@ class BaseWSGIServer:
             'wsgi.run_once': 0,
 
             'REQUEST_METHOD': method.upper(),
+            'REMOTE_ADDR': transport.there[0],
             'SCRIPT_NAME': script_name,
             'PATH_INFO': path_info,
             'QUERY_STRING': query_string,
@@ -235,8 +236,10 @@ def main(argv):
     port = 8080
     socket_fd = None
     max_requests = 1
+    settings = None
 
-    opts, args = getopt.getopt(argv[1:], '', ('socket-fd=', 'port=', 'bind=', 'max-requests='))
+    opts, args = getopt.getopt(argv[1:], '', ('socket-fd=', 'port=', 'bind=',
+                                              'max-requests=', 'settings='))
     for k, v in opts:
         if k == '--socket-fd':
             socket_fd = int(v)
@@ -246,9 +249,17 @@ def main(argv):
             interface = v
         elif k == '--max-requests':
             max_requests = int(v)
+        elif k == '--settings':
+            settings = v
         else:
             raise 'Bad, bad getop! %r' % k
 
+    if not settings is None:
+        os.environ['DJANGO_SETTINGS_MODULE'] = settings
+
+    from django.conf import settings
+    settings.DEBUG = True
+            
     if socket_fd is None:
         log.info('Creating listener socket for %s:%d' % (interface, port))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
