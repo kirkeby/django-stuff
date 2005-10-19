@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+from django.models.aggemam import messages
+from django.models.aggemam import feedupdates
+import datetime
+
+now = datetime.datetime.now()
+max_age = datetime.timedelta(days=1)
+
+old = messages.get_list(happened__lt=now - max_age)
+for m in old:
+    m.delete()
+
+old = feedupdates.get_list(fetched__lt=now - max_age, processed__exact=True)
+for u in old:
+    u.delete()
