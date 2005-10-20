@@ -1,0 +1,21 @@
+{% extends "admin/base_site" %}
+{% block content %}
+<h1>Drafts</h1>
+
+<table>
+<thead>
+<tr>
+    <th>Title</th>
+    <th>Last edited</th>
+</tr>
+</thead>
+<tbody>
+{% for draft in drafts %}
+<tr>
+    <td><a href='{{ draft.id }}/'>{{ draft.title|escape }}</a></td>
+    <td>{{ draft.posted|timesince }} ago</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "admin/base_site" %}
+{% block content %}
+<h1>Preview</h1>
+
+<!-- FIXME: move style to a css-file, include blog CSS -->
+<div class='blurt preview' style='font-size: 75%; margin: 1em; padding: 1em; border: thin solid black;'>
+    <h1>{{ draft.title }}</h1>
+    <p class='timestamp' title='{{ draft.posted|date:"F j, Y H:i O" }}'>Posted {{ draft.posted|timesince }} ago</p>
+
+    {{ draft.get_content_rendered }}
+
+    <p class='tags'>
+    {% if draft.get_category_list %}
+    You have been reading the rant "{{ draft.title }}", which I tagged with 
+    {% for category in draft.get_category_list %}
+        <a title='Posts tagged "{{ category.name }}"'
+           href='{{ category.get_absolute_url }}'>{{ category.name }}</a>{% if forloop.last %}.{% else %},{% endif %}
+    {% endfor %}
+    {% endif %}
+    </p>
+</div>
+
+<h1>Edit Draft</h1>
+{% if form.has_errors %}
+<p class="errornote">Please correct the errors below.</p>
+{{ errors }}
+{% endif %}
+
+<form method='post' action='.'>
+<fieldset class='module aligned'>
+    <div class='form-row {% if form.title.errors %}error{% endif %}'>
+    {% if form.title.errors %}
+    <ul class='errorlist'>{% for error in form.title.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    {% endif %}
+    <label for="id_title" class='required'>Title:</label> {{ form.title }}
+    </div>
+
+    <div class='form-row {% if form.slug.errors %}error{% endif %}'>
+    {% if form.slug.errors %}
+    <ul class='errorlist'>{% for error in form.slug.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    {% endif %}
+    <label for="id_slug" class='required'>Slug:</label> {{ form.slug }}
+    </div>
+</fieldset>
+
+<fieldset class='module aligned'>
+    <div class='form-row {% if form.content.errors %}error{% endif %}'>
+    {% if form.content.errors %}
+    <ul class='errorlist'>{% for error in form.content.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    {% endif %}
+    <label for="id_content" class='required'>Content:</label> {{ form.content }}
+    </div>
+</fieldset>
+
+<input type='hidden' name='categories' value='42' />
+<input type='hidden' name='categories' value='41' />
+
+<button type='submit' name='action' value='preview'>Preview Draft</button>
+<button type='submit' name='action' value='publish'>Publish Draft</button>
+</form>
+{% endblock %}
