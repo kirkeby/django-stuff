@@ -2,6 +2,12 @@
 {% block pagetitle %}Preview Comment{% endblock %}
 {% block content %}
 <h2>Comment Preview</h2>
+
+<p>Your comment has <em>not</em> been posted yet. It will not be posted until
+you click the "Post Comment" button below.</p>
+
+<p>This is a preview of how your comment will look when posted:</p>
+
 <div class='comment'>
 <span class='byline'>Posted now by
 {% if comment.url %}<a href="{{ comment.url|escape }}" rel='nofollow'>{% endif %}{{ comment.name|escape }}{% if comment.url %}</a>{% endif %}
@@ -9,7 +15,14 @@
 {{ comment.content }}
 </div>
 
+<p>If you are not happy with your comment, just edit it some more
+and click "Preview Comment" below.</p>
+
 <h2>Post Comment</h2>
+
+<p>Now, if your comment is all good now, click the "Post Comment" button,
+and it will be whiskered off to be posted.</p>
+
 <form method='post' action='../post-comment/'>
 <input type='hidden' name='comment' value='{{ comment.id }}' />
 <input type='submit' value='Post Comment' />
@@ -25,9 +38,9 @@ of <a href='http://daringfireball.net/projects/markdown/'>Markdown</a>;
 <form method='post'>
 <input type='hidden' name='comment' value='{{ comment.id }}' />
 <label for='id_name'>Your Name (Required):</label><br />
-<input id='id_name' name='name' value='{{ comment.name|escape }}' /><br />
+<input id='id_name' name='name' value="{{ comment.name|escape }}" /><br />
 <label for='id_email'>Your Email (Optional):</label><br />
-<input id='id_email' name='email' value='{{ comment.email|escape }}' /><br />
+<input id='id_email' name='email' value="{{ comment.email|escape }}" /><br />
 <label for='id_url'>Your URL (Optional):</label><br />
 <input style='width: 80%; clear: both;' id='id_url' name='url'
        value='{{ comment.url|escape }}' /><br />
