@@ -196,11 +196,15 @@ def post_comment(request, year, month, day, slug):
 
     if not p.id == c.post_id:
         raise Http404()
+    # FIXME
+    # check IP-address!
+    # check session?
     if c.previewed:
         raise Http404()
 
+    ctx = template.Context(dict(comment=c))
     send_mail("New comment on %s" % c.get_post(),
-              comment_posted.render(template.Context(dict(comment=c))),
+              comment_posted.render(ctx),
               SERVER_EMAIL, [a[1] for a in ADMINS], True)
 
     c.previewed = True
