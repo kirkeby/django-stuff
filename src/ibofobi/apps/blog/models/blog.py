@@ -97,12 +97,12 @@ class Post(meta.Model):
     def get_content_rendered(self):
         """Return the content of this post, rendered as XHTML."""
         rendered = None
-        if cache_seconds:
+        if cache_seconds and self.listed:
             key = 'ibofobi.blog.markdown_cache.' + self.get_absolute_url()
             rendered = cache.get(key)
         if not rendered:
             rendered = markdown(self.content)
-        if cache_seconds:
+        if cache_seconds and self.listed:
             cache.set(key, rendered, cache_seconds)
         return rendered
 
