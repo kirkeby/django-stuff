@@ -31,7 +31,7 @@ def process_updates():
                 new_posts = 0
                 feed.update = False
                 feed.save()
-                print 'Feed %s is gone (http://admin.ibofobi.dk/aggemam/feedupdates/%d/)' % (update.id,)
+                print 'Feed %s is gone (http://admin.ibofobi.dk/aggemam/feedupdates/%d/)' % (feed.id, update.id)
                 print 'Disabling update of feed (http://admin.ibofobi.dk/aggemam/feeds/%d/)' % (feed.id,)
                 print
             elif update.result == 'er':
