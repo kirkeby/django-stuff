@@ -27,6 +27,7 @@ def index(request):
             'fetchers': fetchers.get_list(),
             'aurora_messages': messages.get_list(order_by=['-logged'], limit=7),
         })
+index = staff_member_required(index)
 
 def torrent(request, t_id):
     torrent = get_object_or_404(torrents, pk=t_id)
@@ -40,6 +41,7 @@ def torrent(request, t_id):
             'fetcher': fetcher,
             'aurora_messages': msgs,
         })
+torrent = staff_member_required(torrent)
 
 def pause(request, t_id):
     torrent = get_object_or_404(torrents, pk=t_id)
@@ -53,12 +55,14 @@ def pause(request, t_id):
         pass
 
     return HttpResponseRedirect('..')
+pause = staff_member_required(pause)
 
 def resume(request, t_id):
     torrent = get_object_or_404(torrents, pk=t_id)
     torrent.status = 'wk'
     torrent.save()
     return HttpResponseRedirect('..')
+resume = staff_member_required(resume)
 
 def add(request):
     if request.POST:
