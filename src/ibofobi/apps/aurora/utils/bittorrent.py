@@ -1,3 +1,13 @@
+# BitTorrent is a stinking heap of dung, so I have to
+# work around it with these hacks,
+
+import sys
+if not hasattr(sys, 'argv'):
+    sys.argv = ['/usr/bin/python']
+    import BitTorrent
+    import BitTorrent.configfile
+    del sys.argv
+
 from BitTorrent import ConvertedMetainfo
 from BitTorrent.defaultargs import get_defaults
 from BitTorrent import configfile

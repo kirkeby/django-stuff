@@ -8,9 +8,6 @@ from django.models.aurora import metainfos
 from django.models.aurora import fetchers
 from django.models.aurora import messages
 
-from BitTorrent.bencode import bdecode
-from BitTorrent.ConvertedMetainfo import ConvertedMetainfo
-
 import traceback
 import base64
 import urllib
@@ -18,6 +15,9 @@ import os
 
 from ibofobi.apps.aurora.utils import bittorrent
 from ibofobi.apps.aurora.utils.daemonize import daemonize
+
+from BitTorrent.bencode import bdecode
+from BitTorrent.ConvertedMetainfo import ConvertedMetainfo
 
 AURORA_FETCHER_COMMAND = '/home/sune/bin/shell/aurora-fetcher'
 
