@@ -1,0 +1,30 @@
+{% extends "admin/base_site" %}
+{% block content %}
+<h1>Add Torrent</h1>
+
+<form method='post' enctype='multipart/form-data' action=''>
+<fieldset class="module aligned">
+<div class='form-row {% if errors.url %}error{% endif %}'>
+{% if errors.url %}
+<ul class='errorlist'>
+{% for error in errors.url %}<li>{{ error }}</li>{% endfor %}
+</ul>
+{% endif %}
+<label for='id_url'>URL:</label>
+<input name='url' id='id_url' {% if url %} value='{{ url|escape }}' {% endif %}/>
+</div>
+
+<div class='form-row {% if errors.torrent %}error{% endif %}'>
+{% if errors.torrent %}
+<ul class='errorlist'>
+{% for error in errors.torrent %}<li>{{ error }}</li>{% endfor %}
+</ul>
+{% endif %}
+<label for='id_torrent'>Torrent file:</label>
+<input name='torrent' id='id_torrent' type='file' />
+</div>
+</fieldset>
+
+<input type='submit' value='Add Torrent' />
+</form>
+{% endblock %}

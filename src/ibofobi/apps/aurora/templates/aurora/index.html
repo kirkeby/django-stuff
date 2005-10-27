@@ -1,0 +1,89 @@
+{% extends "admin/base_site" %}
+{% block content %}
+<h1>Aurora status</h1>
+
+<div id="content-main">
+<ul class="object-tools"><li><a href="add/" class="addlink">Add torrent</a></li></ul>
+
+<div class='module'>
+<h2>Fetchers</h2>
+<table cellspacing="0" width='100%'>
+<thead>
+<tr>
+    <th>Torrent</th>
+    <th>Status</th>
+    <th>Upload-rate</th>
+    <th>Download-rate</th>
+    <th>Peers</th>
+</tr>
+</thead>
+
+<tbody>
+{% for fetcher in fetchers %}
+<tr>
+    <td><a href='torrent/{{ fetcher.get_torrent.id }}/'>{{ fetcher.get_torrent|escape }}</a></td>
+    <td>{{ fetcher.get_status_display }}</td>
+    <td>{{ fetcher.upload_rate|filesizeformat }}/s</td>
+    <td>{{ fetcher.download_rate|filesizeformat }}/s</td>
+    <td>{{ fetcher.seeds }} seed{{ fetcher.seeds|pluralize }},
+        {{ fetcher.peers }} peer{{ fetcher.peers|pluralize }}
+        ({{ fetcher.copies }} copies)</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<div class='module'>
+<h2>Torrents</h2>
+<table cellspacing="0" width='100%'>
+<thead>
+<tr>
+    <th>Name</th>
+    <th>Status</th>
+    <th>Uploaded</th>
+    <th>Downloaded</th>
+    <th>ETA</th>
+</tr>
+</thead>
+
+<tbody>
+{% for torrent in torrents %}
+<tr>
+    <td><a href='torrent/{{ torrent.id }}/'>{{ torrent|escape }}</a></td>
+    <td>{{ torrent.get_status_display }}</td>
+    <td>{{ torrent.uploaded|filesizeformat }}</td>
+    <td>{{ torrent.downloaded|filesizeformat }} ({{ torrent.get_downloaded_percent|floatformat }} %)</td>
+    <td>{{ torrent.get_eta_display }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<div class='module'>
+<h2>Latest messages</h2>
+<table width='100%'>
+<thead>
+<tr>
+    <th>Torrent</th>
+    <th>Age</th>
+    <th>Severity</th>
+    <th>Content</th>
+</tr>
+</thead>
+
+<tbody>
+{% for message in aurora_messages %}
+<tr>
+    <td><a href='torrent/{{ message.get_torrent.id }}/'>{{ message.get_torrent|escape }}</a></td>
+    <td>{{ message.logged|timesince }}</td>
+    <td>{{ message.get_severity_display }}</td>
+    <td>{{ message.content|escape|linebreaksbr }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+{% endblock %}

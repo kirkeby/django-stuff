@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+
+from django.models.aurora import torrents
+from django.models.aurora import fetchers
+from django.models.aurora import messages
+
+from ibofobi.apps.aurora.utils.daemonize import daemonize
+
+import os
+import errno
+
+def main(argv):
+    for torrent in torrents.get_list(status__exact='wk'):
+        try:
+            fetcher = fetchers.get_object(pk=torrent.id)
+            check_fetcher(torrent, fetcher)
+        except fetchers.FetcherDoesNotExist:
+            print 'Spawning fetcher for %s' % torrent
+            spawn_fetcher(torrent)
+
+def spawn_fetcher(torrent):
+    if daemonize():
+        return
+    os.execv(__file__.replace('watcher', 'fetcher'), ['fetcher', str(torrent.id)])
+
+def check_fetcher(torrent, fetcher):
+    try:
+        # FIXME -- this is not bullet-proof, some other process could
+        # have the pid
+        os.kill(fetcher.process_id, 0)
+
+    except OSError, e:
+        if not e.args[0] == errno.ESRCH:
+            raise
+
+        print 'Fetcher for %s has gone AWOL, re-spawning' % torrent
+        fetcher.delete()
+        spawn_fetcher(torrent)
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main(sys.argv[1:]))

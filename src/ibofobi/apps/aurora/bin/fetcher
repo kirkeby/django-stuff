@@ -1,0 +1,150 @@
+#!/usr/bin/python
+
+from django.models.aurora import torrents
+from django.models.aurora import fetchers
+from django.models.aurora import messages
+
+from django.conf.settings import AURORA_DOWNLOAD_DIRECTORY
+from django.conf.settings import AURORA_STATUS_INTERVAL
+
+from django.core.db import db
+
+from BitTorrent.download import Feedback
+from BitTorrent.download import Multitorrent
+
+from ibofobi.apps.aurora.utils import bittorrent
+
+import os
+import sys
+import threading
+import datetime
+import traceback
+import signal
+
+def avg(lst):
+    if not lst:
+        return 0.0
+    return sum(lst) / len(lst)
+
+activity_status = {
+    'Initial startup': 'ld',
+    'checking existing file': 'ch',
+    'downloading': 'dl',
+    'seeding': 'sd',
+}
+
+def main(t_id):
+    os.chdir(AURORA_DOWNLOAD_DIRECTORY)
+
+    torrent = torrents.get_object(pk=t_id)
+    if not torrent.status == 'wk':
+        raise AssertionError, 'Torrent %d not in working state' % torrent.id
+    
+    fetcher = fetchers.Fetcher(torrent=torrent, status='ld')
+    fetcher.process_id = os.getpid()
+    fetcher.created = datetime.datetime.now()
+    fetcher.save()
+
+    fetcher = fetchers.get_object(pk=torrent.id)
+
+    try:
+        try:
+            downloader = Downloader(torrent, fetcher)
+            signal.signal(signal.SIGINT, downloader.catch)
+            signal.signal(signal.SIGTERM, downloader.catch)
+            downloader.run()
+
+        except Exception, e:
+            db.close()
+            messages.error(torrent, ''.join(traceback.format_exception(*(sys.exc_info()))))
+
+    finally:
+        try:
+            db.close()
+            messages.info(torrent, 'Fetcher exiting')
+            fetcher.delete()
+        except:
+            pass
+
+class Downloader(Feedback):
+    def __init__(self, torrent, fetcher):
+        self.torrent = torrent
+        self.fetcher = fetcher
+        self.doneflag = threading.Event()
+        self.config = bittorrent.config
+        self.metainfo = self.torrent.get_metainfo().get_parsed()
+
+    def catch(self, signum, frame):
+        self.doneflag.set()
+        db.close()
+        messages.info(self.torrent, 'Caught signal')
+
+    def run(self):
+        messages.info(self.torrent, 'Fetcher loading')
+
+        self.last_upTotal = 0
+
+        self.multitorrent = Multitorrent(self.config, self.doneflag, self.global_error)
+        self.singletorrent = self.multitorrent.start_torrent(self.metainfo, self.config, self, self.metainfo.name_fs)
+        self.update_status()
+        self.multitorrent.rawserver.listen_forever()
+        self.singletorrent.shutdown()
+
+    def update_status(self):
+        self.multitorrent.rawserver.add_task(self.update_status, AURORA_STATUS_INTERVAL)
+
+        status = self.singletorrent.get_status(0)
+
+        self.fetcher.status = activity_status.get(status['activity'], None)
+        if not self.fetcher.status:
+            raise AssertionError, 'unknown activity: %s' % status['activity']
+        self.fetcher.upload_rate = status.get('upRate', 0)
+        self.fetcher.download_rate = status.get('downRate', 0)
+        self.fetcher.peers = status.get('numPeers', 0)
+        self.fetcher.seeds = status.get('numSeeds', 0)
+        self.fetcher.copies = avg(status.get('numCopyList', None))
+        self.fetcher.save()
+
+        if 0:
+            from pprint import pprint
+            pprint(status)
+            print '-------------------'
+            print
+
+        if self.fetcher.status == 'ld':
+            return
+
+        self.torrent.downloaded = int(self.metainfo.total_bytes * status['fractionDone'])
+        if status.has_key('upTotal'):
+            self.torrent.uploaded += status['upTotal'] - self.last_upTotal
+            self.last_upTotal = status['upTotal']
+
+            if self.torrent.status == 'sd' and self.torrent.uploaded > self.metainfo.total_bytes * 2:
+                self.torrent.status = 'fi'
+                self.doneflag.set()
+
+        self.torrent.save()
+
+        db.close()
+
+    def global_error(self, level, text):
+        messages.error(self.torrent, text)
+
+    def error(self, torrent, level, text):
+        messages.error(self.torrent, text)
+
+    def failed(self, torrent, is_external):
+        messages.error(self.torrent, 'Torrent failed; bailing out in flames')
+        self.torrent.status = 'er'
+        self.torrent.save()
+        self.doneflag.set()
+
+    def finished(self, torrent):
+        if not self.torrent.completed:
+            messages.info(self.torrent, 'Torrent downloaded; now seeding')
+            self.torrent.completed = datetime.datetime.now()
+            self.torrent.save()
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main(int(sys.argv[1])))

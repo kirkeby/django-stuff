@@ -1,0 +1,62 @@
+{% extends "admin/base_site" %}
+{% block content %}
+<h1>Torrent &mdash; {{ torrent|escape }}</h1>
+
+<div class='main-content'>
+<ul class='object-tools'>
+    {% if torrent.is_paused %}
+    <li><a href='resume/'>Resume torrent</a></li>
+    {% else %}
+    <li><a href='pause/'>Pause torrent</a></li>
+    {% endif %}
+</ul>
+
+<div class='module'>
+<h2>Torrent into</h2>
+<table>
+<tr><th>Status</th> <td>{{ torrent.get_status_display }}</td></tr>
+<tr><th>Age</th> <td>{{ torrent.created|timesince }}</td></tr>
+{% if torrent.completed %}
+<tr><th>Completed</th> <td>{{ torrent.completed|timesince }}</td></tr>
+{% else %}
+<tr><th>ETA</th> <td>{{ torrent.get_eta_display }}</td></tr>
+{% endif %}
+<tr><th>Uploaded</th> <td>{{ torrent.uploaded|filesizeformat }}</td></tr>
+<tr><th>Downloaded</th> <td>{{ torrent.downloaded|filesizeformat }} ({{ torrent.get_downloaded_percent }} %)</td></tr>
+</table>
+</div>
+
+<div class='module'>
+<h2>Fetcher into</h2>
+<table>
+{% if fetcher %}
+<tr><th>Status</th> <td>{{ fetcher.get_status_display }}</td></tr>
+<tr><th>Started</th> <td>{{ fetcher.created|timesince }}</td></tr>
+<tr><th>Upload-rate</th> <td>{{ fetcher.upload_rate|filesizeformat }}/s</td></tr>
+<tr><th>Download-rate</th> <td>{{ fetcher.download_rate|filesizeformat }}/s</td></tr>
+<tr><th>Peers</th> <td>{{ fetcher.seeds }} seed{{ fetcher.seeds|pluralize }},
+                       {{ fetcher.peers }} peer{{ fetcher.peers|pluralize }}
+                       ({{ fetcher.copies }} copies)</td></tr>
+{% else %}
+<tr><th>Status</th> <td>No fetcher active</td></tr>
+{% endif %}
+</table>
+</div>
+
+{% if aurora_messages %}
+<div class='module'>
+<h2>Latest messages</h2>
+<table>
+<tr><th>Age</th> <th>Severity</th> <th>Content</th></tr>
+{% for message in aurora_messages %}
+<tr>
+    <td>{{ message.logged|timesince }}</td>
+    <td>{{ message.get_severity_display }}</td>
+    <td>{{ message.content|escape|linebreaksbr }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+</div>
+{% endblock %}
