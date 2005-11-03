@@ -53,7 +53,7 @@
     <td><a href='torrent/{{ torrent.id }}/'>{{ torrent|escape }}</a></td>
     <td>{{ torrent.get_status_display }}</td>
     <td>{{ torrent.uploaded|filesizeformat }}</td>
-    <td>{{ torrent.downloaded|filesizeformat }} ({{ torrent.get_downloaded_percent|floatformat }} %)</td>
+    <td>{{ torrent.downloaded|filesizeformat }} ({{ torrent.get_downloaded_percent|floatformat }}%)</td>
     <td>{{ torrent.get_eta_display }}</td>
 </tr>
 {% endfor %}
