@@ -119,9 +119,9 @@ class Downloader(Feedback):
             self.torrent.uploaded += status['upTotal'] - self.last_upTotal
             self.last_upTotal = status['upTotal']
 
-            if self.torrent.status == 'sd' and self.torrent.uploaded > self.metainfo.total_bytes * 2:
-                self.torrent.status = 'fi'
-                self.doneflag.set()
+        if self.torrent.completed and self.torrent.uploaded > self.metainfo.total_bytes * 2:
+            self.torrent.status = 'fi'
+            self.doneflag.set()
 
         self.torrent.save()
 
