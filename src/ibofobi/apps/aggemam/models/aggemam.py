@@ -86,14 +86,25 @@ class Post(meta.Model):
     summary = meta.TextField(blank=True, null=True)
     content = meta.TextField(blank=True, null=True)
 
-    def get_link(self):
+    def get_preferred_link(self):
         """Get the most preferred alternate link."""
-        links = self.get_link_list()
-        if len(links) == 1:
-            return links[0]
+        if not hasattr(self, 'preferred_link'):
+            type_scores = {
+                'application/xhtml+xml': 10,
+                'text/html': 5,
+                'text/plain': 1,
+            }
+            def cmp_types(a, b):
+                return cmp(type_scores.get(a.type, 0), type_scores.get(b.type, 0))
+            
+            links = self.get_link_list()
+            links.sort(cmp_types)
+            if links:
+                self.preferred_link = links[0]
+            else:
+                self.preferred_link = None
 
-        else:
-            raise AssertionError
+        return self.preferred_link
 
     class META:
         unique_together = (('feed', 'guid'),)
@@ -123,7 +134,7 @@ class Post(meta.Model):
                                 WHERE aggemam_userpostmarks.user_id = aggemam_subscriptions.user_id
                                 AND aggemam_userpostmarks.post_id = aggemam_posts.id
                                 AND aggemam_userpostmarks.mark = 'rd')
-                                
+                ORDER BY aggemam_posts.posted ASC
                   ''' % user.id)
         return [ get_object(pk=post_id) for post_id, in c.fetchall() ]
 

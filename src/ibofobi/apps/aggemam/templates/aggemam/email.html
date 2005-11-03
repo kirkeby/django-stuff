@@ -9,7 +9,13 @@ Content-Type: text/html; charset=utf-8
 <title>{{ post.title|striptags }}</title>
 </head>
 <body>
-<h1><a href='{{ post.get_link }}'>{{ post.title }}</a></h1>
+{% if post.get_preferred_link %}
+<h1><a href='{{ post.preferred_link.href|escape }}'
+       type='{{ post.preferred_link.type|escape }}'
+       title='{{ post.preferred_link.title|escape }}'>{{ post.title }}</a></h1>
+{% else %}
+<h1>{{ post.title }}</h1>
+{% endif %}
 
 {% if post.content %}
 {{ post.content }}
@@ -18,7 +24,7 @@ Content-Type: text/html; charset=utf-8
 {% endif %}
 
 <hr />
-Posted to {{ post.get_feed.title }}.
+Posted to <a href='http://admin.ibofobi.dk/custom/aggemam/feeds/{{ post.get_feed.id }}/'>{{ post.get_feed.title }}</a>.
 Mailed by Aggemam.
 </body>
 </html>
