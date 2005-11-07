@@ -1,3 +1,5 @@
+from ibofobi.apps.aurora.utils import bittorrent
+
 from django.core import meta
 
 TORRENT_STATUS = (
@@ -26,10 +28,8 @@ class Torrent(meta.Model):
         from django.utils.timesince import timesince
 
         try:
-            fetcher = fetchers.get_object(pk=self.id)
-            
-            if fetcher.download_rate:
-                seconds = (self.get_metainfo().total_bytes - self.downloaded) / fetcher.download_rate
+            if self.fetcher.download_rate:
+                seconds = (self.metainfo.total_bytes - self.downloaded) / self.fetcher.download_rate
                 days = seconds / (24 * 60 * 60)
                 seconds = seconds % (24 * 60 * 60)
                 
@@ -44,18 +44,23 @@ class Torrent(meta.Model):
         except fetchers.FetcherDoesNotExist:
             return ''
 
-    def get_metainfo(self):
-        m = getattr(self, 'metainfo')
-        if not m:
-            from django.models.aurora import metainfos
-            m = self.metainfo = metainfos.get_object(pk=self.id)
-        return m
-
     def get_downloaded_percent(self):
-        return self.downloaded * 100.0 / self.get_metainfo().total_bytes
+        return self.downloaded * 100.0 / self.metainfo.total_bytes
 
     def __repr__(self):
         return self.name
+
+    def __getattr__(self, name):
+        if name == 'fetcher':
+            from django.models.aurora import fetchers
+            self.fetcher = fetchers.get_object(pk=self.id)
+            return self.fetcher
+        elif name == 'metainfo':
+            from django.models.aurora import metainfos
+            self.metainfo = metainfos.get_object(pk=self.id)
+            return self.metainfo
+        else:
+            raise AttributeError, name
 
     class META:
         admin = meta.Admin()
@@ -65,6 +70,9 @@ class Metainfo(meta.Model):
     torrent = meta.OneToOneField(Torrent, primary_key=True)
     # BEWARE -- metainfo is base64-encoded
     metainfo = meta.TextField()
+
+    # Cached from the parsed metainfo, filled in by _pre_save
+    total_bytes = meta.IntegerField()
 
     def get_parsed(self):
         """Return the parsed metainfo (BitTorrent.ConvertedMetainfo)."""
@@ -81,6 +89,10 @@ class Metainfo(meta.Model):
             self.metainfo_parsed = ConvertedMetainfo(bdecode(base64.decodestring(self.metainfo)))
 
         return self.metainfo_parsed
+
+    def _pre_save(self):
+        p = self.get_parsed()
+        self.total_bytes = p.total_bytes
 
     def __getattr__(self, *args):
         p = self.get_parsed()
