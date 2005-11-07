@@ -35,7 +35,7 @@ def torrent(request, t_id):
         fetcher = fetchers.get_object(pk=torrent.id)
     except fetchers.FetcherDoesNotExist:
         fetcher = None
-    msgs = messages.get_list(order_by=['-logged'], torrent__id__exact=torrent.id)
+    msgs = messages.get_list(order_by=['-logged'], limit=30, torrent__id__exact=torrent.id)
     return render_to_response('aurora/torrent', {
             'torrent': torrent,
             'fetcher': fetcher,
