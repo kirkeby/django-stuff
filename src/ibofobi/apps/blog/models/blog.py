@@ -111,8 +111,10 @@ class Post(meta.Model):
     def get_previewed_comment_count(self):
         return self.get_comment_count(previewed__exact=True)
 
-    def __repr__(self):
+    def __str__(self):
         return self.title
+    def __repr__(self):
+        return '<blog.Post %r>' % self.id
 
 class Comment(meta.Model):
     user = meta.ForeignKey(auth.User, blank=True, null=True)

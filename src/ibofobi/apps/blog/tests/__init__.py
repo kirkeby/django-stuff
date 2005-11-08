@@ -6,9 +6,10 @@
 >>> posts.get_object(pk=1).posted
 datetime.datetime(1979, 7, 7, 23, 12)
 
+>>> posts.get_list(listed__exact=True)
+[<blog.Post 1>]
+
 >>> browser.go('/')
->>> browser.content_type()
-'text/html; charset=utf-8'
 >>> blurt = browser.soup.first('div', { 'class': 'blurt' })
 >>> blurt.h1.a.string
 'Hello, World!'
