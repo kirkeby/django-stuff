@@ -90,9 +90,9 @@ class Post(meta.Model):
         """Get the most preferred alternate link."""
         if not hasattr(self, 'preferred_link'):
             type_scores = {
-                'application/xhtml+xml': 10,
-                'text/html': 5,
-                'text/plain': 1,
+                'application/xhtml+xml': -10,
+                'text/html': -5,
+                'text/plain': -1,
             }
             def cmp_types(a, b):
                 return cmp(type_scores.get(a.type, 0), type_scores.get(b.type, 0))
