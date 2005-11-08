@@ -1,0 +1,7 @@
+posts:
+    hello_world:
+        title: Hello, World!
+        slug: hello-world
+        posted: 1979-7-7 23:12:00.0
+        listed: true
+        content: A lot of content should go here.

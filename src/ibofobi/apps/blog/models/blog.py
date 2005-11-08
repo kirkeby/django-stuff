@@ -74,7 +74,7 @@ class Post(meta.Model):
         )
 
     def _pre_save(self):
-        if not self.tag:
+        if not getattr(self, 'tag', None):
             fmt = getattr(settings, 'BLOG_TAG_FORMAT', 'tag:%s/archive/%d/%02d/%02d/%s/' % (settings.BLOG_URL, self.posted.year, self.posted.month, self.posted.day, self.slug))
             self.tag = fmt % dict(year=self.posted.year,
                                   month=self.posted.month,
