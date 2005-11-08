@@ -1,0 +1,20 @@
+feeds:
+    abc:
+        url: 'http://example.com/feed/'
+        update_interval: '42'
+
+posts:
+    first_post:
+        feed_id: '1'
+        title: 'First Post!'
+
+links:
+    link0:
+        post_id: '1'
+        href: 'http://example.com/atom/'
+        type: 'application/atom+xml'
+        
+    link1:
+        post_id: '1'
+        href: 'http://example.com/post/'
+        type: 'text/html'
