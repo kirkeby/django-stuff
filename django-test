@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+
+from ibofobi.utils.test import munge
+munge.munge_settings()
+munge.munge_db_db()
+
+from django.conf import settings
+from ibofobi.utils.test.test_app import test_app
+for app in settings.INSTALLED_APPS:
+    test_app(app)
