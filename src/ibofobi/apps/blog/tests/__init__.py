@@ -17,4 +17,12 @@ datetime.datetime(1979, 7, 7, 23, 12)
 'July 7, 1979 23:12 CET'
 >>> blurt.first('p', { 'class': 'timestamp' }).string == 'Posted %s ago' % timesince(datetime(1979, 7, 7))
 True
+
+>>> browser.go('/archive/1979/07/')
+>>> browser.soup.title.string
+'Archive for July 1979 [about:me]'
+>>> browser.soup.li.a['href']
+'/blog/archive/1979/07/07/hello-world/'
+>>> browser.soup.li.a.string
+'Hello, World!'
 """
