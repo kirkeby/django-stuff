@@ -75,7 +75,8 @@ def test_app(app):
 
     # Import application module
     if '.' in app:
-        _, app_name = app.rsplit('.', 1)
+        i = app.rfind('.')
+        app_name = app[i+1:]
     else:
         app_name = app
     module = __import__(app, None, None, ['*'])
