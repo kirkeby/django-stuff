@@ -10,6 +10,7 @@ from django.models.blog import comments
 from django.utils.httpwrappers import HttpResponse
 from django.utils.httpwrappers import HttpResponseRedirect
 from django.core.exceptions import Http404
+from django.core.exceptions import PermissionDenied
 from django.core.db import db
 from django.core.template.defaultfilters import slugify
 from django.conf import settings
@@ -132,6 +133,9 @@ def feeds_index(request):
     return HttpResponse(t.render(c))
 
 def preview_comment(request, year, month, day, slug):
+    if not request.META['REQUEST_METHOD'] == 'POST':
+        raise PermissionDenied()
+    
     try:
         p = posts.get_object(posted__year=int(year),
                              posted__month=int(month),

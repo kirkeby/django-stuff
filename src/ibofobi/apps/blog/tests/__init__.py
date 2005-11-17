@@ -25,4 +25,7 @@ True
 '/blog/archive/1979/07/07/hello-world/'
 >>> browser.soup.li.a.string
 'Hello, World!'
+
+>>> browser.go('/archive/1979/07/07/hello-world/preview-comment/', code=403)
+
 """
