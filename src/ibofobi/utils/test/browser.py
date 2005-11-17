@@ -15,7 +15,7 @@ class Browser:
         self.handler = WSGIHandler()
         self.result = None
     
-    def go(self, url):
+    def go(self, url, code=200):
         environ = {
             'PATH_INFO': url,
             'QUERY_STRING': '',
@@ -27,8 +27,8 @@ class Browser:
         self.result.body = ''.join(pieces)
         self.soup = BeautifulSoup(self.result.body)
 
-        if not self.result.status.startswith('200 '):
-            raise AssertionError, self.result.body
+        if not self.result.status.startswith('%d ' % code):
+            raise AssertionError, self.result.status
 
     def content_type(self):
         """Return Content-Type header of last document fetched."""
