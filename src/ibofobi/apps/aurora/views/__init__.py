@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 from django.core.extensions import render_to_response
 from django.core.extensions import get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required

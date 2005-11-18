@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 from django.core import meta
 from django.models import auth
 from django.models import core

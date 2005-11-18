@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 def munge_settings():
     """Munges Djangos settings-module for running tests.
 

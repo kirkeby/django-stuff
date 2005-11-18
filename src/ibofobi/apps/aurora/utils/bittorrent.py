@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 # BitTorrent is a stinking heap of dung, so I have to
 # work around it with these hacks,
 

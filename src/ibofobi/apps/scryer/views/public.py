@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 from django.models.scryer import pageviews
 from django.models.core import sites
 from django.utils.httpwrappers import HttpResponse

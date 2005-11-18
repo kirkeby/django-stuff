@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 """
 >>> from django.models.auth import users
 >>> user = users.create_user('me', 'John', 'Doe')

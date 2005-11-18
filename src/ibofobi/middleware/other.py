@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 import re
 
 re_vary_cookie = re.compile(r'\bCookie\b')

@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 from ibofobi.apps.aurora.utils import bittorrent
 
 from django.core import meta

@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 from django.core import template_loader
 from django.core.extensions import DjangoContext as Context
 from django.models.accounting import accounts

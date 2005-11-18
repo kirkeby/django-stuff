@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 from django.core import template
 from django.core import template_loader
 from django.core.mail import send_mail

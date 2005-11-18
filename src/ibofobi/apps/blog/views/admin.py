@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 from django.core import extensions
 from django.core.exceptions import Http404
 from django.utils.httpwrappers import HttpResponseRedirect

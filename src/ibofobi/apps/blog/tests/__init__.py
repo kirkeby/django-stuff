@@ -1,3 +1,5 @@
+# Copyright 2005 (C) Sune Kirkeby -- Licensed under the "X11 License"
+
 """
 >>> from django.models.blog import posts
 >>> from django.utils.timesince import timesince
