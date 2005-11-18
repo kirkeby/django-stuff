@@ -1,0 +1,11 @@
+{% extends "aggemam/base" %}
+{% block title %}Subscribe to feed{% endblock %}
+{% block content %}
+<h1>Feeds at {{ url|escape }}</h1>
+
+<ul>
+{% for feed in feeds %}
+<li><a href='{{ feed|escape }}'>{{ feed|escape }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

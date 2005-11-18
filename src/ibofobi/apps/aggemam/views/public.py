@@ -9,6 +9,8 @@ from django.conf import settings
 from django.models.aggemam import subscriptions
 from django.models.aggemam import posts
 
+from ibofobi.apps.aggemam.utils import feedfinder
+
 class Context(DjangoContext):
     def __init__(self, request, **kwargs):
         DjangoContext.__init__(self, request, kwargs)
@@ -37,6 +39,12 @@ def json_enabled_page(f, template_name):
         return HttpResponse(t.render(c), ct)
 
     return g
+
+def subscribe(request):
+    url = request.GET['url']
+    feeds = feedfinder.getFeeds(url)
+    return Context(request, url=url, feeds=feeds)
+subscribe = json_enabled_page(subscribe, 'aggemam/subscribe')
 
 def list_subscriptions(request):
     subs = subscriptions.get_list(user__id__exact=request.user.id)
