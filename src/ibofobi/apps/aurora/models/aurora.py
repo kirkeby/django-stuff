@@ -27,7 +27,7 @@ class Torrent(meta.Model):
     def get_eta_display(self):
         import datetime
         from django.models.aurora import fetchers
-        from django.utils.timesince import timesince
+        from django.utils.timesince import timeuntil
 
         try:
             if self.fetcher.download_rate:
@@ -38,7 +38,7 @@ class Torrent(meta.Model):
                 now = datetime.datetime.now()
                 delta = datetime.timedelta(days=days, seconds=seconds)
 
-                return timesince(now, now + delta)
+                return timeuntil(now + delta)
 
             else:
                 return ''

@@ -47,7 +47,7 @@ torrent = staff_member_required(torrent)
 
 def pause(request, t_id):
     torrent = get_object_or_404(torrents, pk=t_id)
-    torrent.status = 'st'
+    torrent.status = 'pa'
     torrent.save()
 
     try:
