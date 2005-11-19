@@ -12,6 +12,9 @@ def pageview(request):
     if getattr(settings, 'SCRYER_SKIP', False):
         pass
 
+    elif getattr(settings, 'SCRYER_SKIP_USERS', True) and not request.user.id is None:
+        pass
+
     else:
         if request.META.has_key('HTTP_X_FORWARDED_FOR'):
             ip = request.META['HTTP_X_FORWARDED_FOR'].split(',')[-1].strip()
