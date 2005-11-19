@@ -156,6 +156,9 @@ class Subscription(meta.Model):
     user = meta.ForeignKey(auth.User)
     feed = meta.ForeignKey(Feed)
 
+    class META:
+        unique_together = (('user', 'feed'),)
+
     def __repr__(self):
         return 'User %r; feed %r' % (self.get_user(), self.get_feed())
 
