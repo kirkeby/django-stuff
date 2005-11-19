@@ -75,7 +75,7 @@ td {
             </div>
         {% endfor %}
         {% for event in day.events %}
-            <div class='event'>{{ event.title }}
+            <div class='event'>{{ event.title|escape }}
             {% if a_perms.calendar.change_event %}
                 <a href='http://admin.ibofobi.dk/calendar/events/{{ event.id }}/'>edit</a>
             {% endif %}
