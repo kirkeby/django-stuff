@@ -1,0 +1,59 @@
+{% load adminmedia %}
+{% extends "blog/admin/base" %}
+{% block title %}Moderate comments{% endblock %}
+{% block extrahead %}
+{{ parent }}
+
+<style type='text/css'>
+    .content-hidden .comment-content { display: none; }
+    .content-hidden .toggle-content { background: url('{% admin_media_prefix %}/img/admin/icon_addlink.gif') center no-repeat; }
+    .content-visible .toggle-content { background: url('{% admin_media_prefix %}/img/admin/icon_deletelink.gif') center no-repeat; }
+    .toggle-content { display: block; }
+    label { display: block; }
+</style>
+<script type='application/x-javascript'>
+    function toggle_visible(elem_id)
+    {
+        var node = document.getElementById(elem_id);
+        if(node.className.match(/hidden/)) {
+            node.className = node.className.replace('hidden', 'visible');
+        } else {
+            node.className = node.className.replace('visible', 'hidden');
+        }
+    }
+</script>
+{% endblock %}
+{% block content %}
+<h1>Blog admin</h1>
+
+<form action='delete/' method='post'>
+<table cellspacing="0">
+<thead>
+<tr>
+<th>Delete</th><th>Post</th><th>IP Address</th><th>Previewed</th><th>Show</th>
+</tr>
+</thead>
+{% for comment in comments %}
+<tbody class='content-hidden' id='comment{{ comment.id }}'>
+<tr class="{% cycle row1,row2 %} content-hidden" style='border: none;'>
+<td><input type='checkbox' name='comments' value='{{ comment.id }}' id='del-comment{{ comment.id }}' /></td>
+<td><label for='del-comment{{ comment.id }}'>{{ comment.get_post|escape }}</label></td>
+<td>{{ comment.ip_address }}</td>
+<td class='previewed'>{% if comment.previewed %}
+    <img src='{% admin_media_prefix %}/img/admin/icon-yes.gif' alt='Previewed' />
+    {% else %}
+    <img src='{% admin_media_prefix %}/img/admin/icon-no.gif' alt='Not previewed' />
+    {% endif %}</td>
+<td><a href='#' onclick='javascript:toggle_visible("comment{{ comment.id }}"); return false;' class='toggle-content'>&nbsp;</a></td>
+</tr>
+<tr class="{% cycle row1,row2 %} comment-content">
+<td></td>
+<td colspan='4'><label for='del-comment{{ comment.id }}'>{{ comment.content }}</label></td>
+</tr>
+</tbody>
+{% endfor %}
+</table>
+
+<p><input type='submit' value='Delete Comments' /></p>
+</form>
+{% endblock %}

@@ -8,6 +8,7 @@ from django.core import formfields
 from django.contrib.admin.views.decorators import staff_member_required
 
 from django.models.blog import posts
+from django.models.blog import comments
 
 import datetime
 
@@ -66,3 +67,16 @@ def draft_edit(request, draft_id):
     form = formfields.FormWrapper(manipulator, data, errors)
     return locals()
 draft_edit = page(draft_edit, 'blog/draft_preview')
+
+def comments_index(request):
+    return {
+        'comments': comments.get_list(order_by=['-posted']),
+    }
+comments_index = page(comments_index, 'blog/admin/comments_index')
+
+def delete_comments(request):
+    for id in request.POST.getlist('comments'):
+        comment = comments.get_object(pk=int(id))
+        comment.delete()
+    return HttpResponseRedirect('..')
+delete_comments = staff_member_required(delete_comments)
