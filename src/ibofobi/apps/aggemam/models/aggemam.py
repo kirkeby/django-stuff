@@ -40,6 +40,9 @@ class Feed(meta.Model):
             list_filter = ['update', 'next_update'],
         )
 
+    def get_latest_posts(self, limit=7):
+        return self.get_post_list(order_by=['-posted'], limit=7)
+
     def __repr__(self):
         if self.title:
             return self.title

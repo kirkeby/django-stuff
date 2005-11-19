@@ -4,6 +4,7 @@ from django.core import template_loader
 from django.utils.httpwrappers import HttpResponse
 from django.core.extensions import DjangoContext
 from django.core.extensions import render_to_response
+from django.core.extensions import get_object_or_404
 from django.core.validators import isAlphaNumeric
 from django.conf import settings
 
@@ -44,6 +45,14 @@ def json_enabled_page(f, template_name):
 
     return g
 
+def list_subscriptions(request):
+    subs = subscriptions.get_list(user__id__exact=request.user.id)
+    return Context(request, subscriptions=subs)
+    
+def list_unread_posts(request):
+    return Context(request, posts=posts.get_unread_for_user(request.user))
+list_unread_posts = json_enabled_page(list_unread_posts, 'aggemam/list_posts')
+
 def subscribe(request):
     if request.GET:
         url = request.GET['url']
@@ -67,10 +76,9 @@ def subscribe(request):
         return render_to_response('aggemam/subscribed', {'subscriptions': subs})
 subscribe = staff_member_required(subscribe)
 
-def list_subscriptions(request):
-    subs = subscriptions.get_list(user__id__exact=request.user.id)
-    return Context(request, subscriptions=subs)
+def feed_index(request, feed_id):
+    feed = get_object_or_404(feeds, pk=int(feed_id))
+    posts = feed.get_latest_posts()
     
-def list_unread_posts(request):
-    return Context(request, posts=posts.get_unread_for_user(request.user))
-list_unread_posts = json_enabled_page(list_unread_posts, 'aggemam/list_posts')
+    return render_to_response('aggemam/feed', locals())
+feed_index = staff_member_required(feed_index)

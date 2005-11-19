@@ -1,0 +1,13 @@
+{% extends "aggemam/base" %}
+{% block title %}{{ feed.title|escape }} &mdash; Aggemam{% endblock %}
+{% block content %}
+<h1>{{ feed.title|escape }}</h1>
+<div class='module'>
+<h2>Latest posts</h2>
+<ul>
+{% for post in posts %}
+<li><a href='{{ post.get_preferred_link }}/'>{{ post.title }}</a></li>
+{% endfor %}
+</ul>
+</div>
+{% endblock %}

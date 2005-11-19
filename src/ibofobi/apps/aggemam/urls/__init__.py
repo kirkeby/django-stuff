@@ -7,4 +7,5 @@ urlpatterns = patterns('ibofobi.apps.aggemam.views.public',
     (r'^subscribe/$', 'subscribe'),
     (r'^subscriptions/$', 'list_subscriptions'),
     (r'^unread-posts/$', 'list_unread_posts'),
+    (r'feeds/(?P<feed_id>\d+)/$', 'feed_index'),
 )
