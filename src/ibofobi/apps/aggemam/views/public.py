@@ -3,10 +3,14 @@
 from django.core import template_loader
 from django.utils.httpwrappers import HttpResponse
 from django.core.extensions import DjangoContext
+from django.core.extensions import render_to_response
 from django.core.validators import isAlphaNumeric
 from django.conf import settings
 
+from django.contrib.admin.views.decorators import staff_member_required
+
 from django.models.aggemam import subscriptions
+from django.models.aggemam import feeds
 from django.models.aggemam import posts
 
 from ibofobi.apps.aggemam.utils import feedfinder
@@ -41,15 +45,31 @@ def json_enabled_page(f, template_name):
     return g
 
 def subscribe(request):
-    url = request.GET['url']
-    feeds = feedfinder.getFeeds(url)
-    return Context(request, url=url, feeds=feeds)
-subscribe = json_enabled_page(subscribe, 'aggemam/subscribe')
+    if request.GET:
+        url = request.GET['url']
+        fds = feedfinder.getFeeds(url)
+        return render_to_response('aggemam/subscribe', {'url': url,
+                                            'feeds': fds})
+
+    elif request.POST:
+        subs = []
+        for url in request.POST.getlist('feeds'):
+            try:
+                feed = feeds.get_object(url__exact=url)
+            except feeds.FeedDoesNotExist:
+                feed = feeds.Feed(url=url, update=True)
+                feed.save()
+
+            sub = subscriptions.Subscription(user=request.user, feed=feed)
+            sub.save()
+            subs.append(sub)
+
+        return render_to_response('aggemam/subscribed', {'subscriptions': subs})
+subscribe = staff_member_required(subscribe)
 
 def list_subscriptions(request):
     subs = subscriptions.get_list(user__id__exact=request.user.id)
     return Context(request, subscriptions=subs)
-list_subscriptions = json_enabled_page(list_subscriptions, 'aggemam/list_subscriptions')
     
 def list_unread_posts(request):
     return Context(request, posts=posts.get_unread_for_user(request.user))

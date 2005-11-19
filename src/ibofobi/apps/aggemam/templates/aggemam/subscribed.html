@@ -1,0 +1,11 @@
+{% extends "aggemam/base" %}
+{% block title %}Subscribed{% endblock %}
+{% block content %}
+<h1>Subscribed to feeds</h1>
+
+<ul>
+{% for subscription in subscriptions %}
+<li>{{ subscription.get_feed|escape }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

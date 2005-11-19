@@ -3,9 +3,20 @@
 {% block content %}
 <h1>Feeds at {{ url|escape }}</h1>
 
-<ul>
+<form method='post' action='.'>
+<p>Please select which feeds to subscribe to.</p>
+
+<p>
 {% for feed in feeds %}
-<li><a href='{{ feed|escape }}'>{{ feed|escape }}</a></li>
+<input id='feed{{ forloop.counter }}'
+       type='checkbox'
+       name='feeds'
+       value='{{ feed|escape }}' />
+<label for='feed{{ forloop.counter }}'>{{ feed|escape }}</label>
+<br />
 {% endfor %}
-</ul>
+</p>
+
+<p><input type='submit' value='Subscribe' /></p>
+</form>
 {% endblock %}
