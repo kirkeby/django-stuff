@@ -46,6 +46,14 @@ def test_entitydefs():
         text = soup.body.string.strip()
         assert text == entitydef, text
 
+def test_style():
+    soup = xhtml_to_soup('<style>21 &lt; 42</style>')
+    assert soup.style.string == '21 < 42', soup.style.string
+
+def test_script():
+    soup = xhtml_to_soup('<script>21 &lt; 42</script>')
+    assert soup.script.string == '21 < 42', soup.script.string
+
 def test_strip_non_html():
     soup = xhtml_to_soup('<xml:foo />')
     assert not soup.body.string

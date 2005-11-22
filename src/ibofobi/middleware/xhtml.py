@@ -57,6 +57,7 @@ def xhtml_to_html(doc):
 
 XHTML_NAMESPACE = u'http://www.w3.org/1999/xhtml'
 EMPTY_HTML_ELEMENTS = ['link', 'br', 'hr', 'img', 'meta']
+HACKISH_UGLY_HATEFUL_CDATA = ['style', 'script']
 HTML_DOCTYPE = "<!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01//EN'\n" \
                "               SYSTEM 'http://www.w3.org/TR/html401/strict.dtd'>"
 class HTMLWriter(xml.sax.handler.ContentHandler):
@@ -67,6 +68,7 @@ class HTMLWriter(xml.sax.handler.ContentHandler):
     def startDocument(self):
         self.pieces = [HTML_DOCTYPE, '\n\n']
         self.in_empty_element = False
+        self.in_hackish_ugly_hateful_cdata = False
     def endDocument(self):
         self.html = ''.join(self.pieces)
 
@@ -77,8 +79,11 @@ class HTMLWriter(xml.sax.handler.ContentHandler):
             return
 
         assert not self.in_empty_element
+        assert not self.in_hackish_ugly_hateful_cdata
         if bn in EMPTY_HTML_ELEMENTS:
             self.in_empty_element = True
+        elif bn in HACKISH_UGLY_HATEFUL_CDATA:
+            self.in_hackish_ugly_hateful_cdata = True
 
         # format tag
         pieces = [bn]
@@ -102,12 +107,17 @@ class HTMLWriter(xml.sax.handler.ContentHandler):
         if self.in_empty_element:
             self.in_empty_element = False
             return
+        elif self.in_hackish_ugly_hateful_cdata:
+            self.in_hackish_ugly_hateful_cdata = False
 
         self.pieces.append('</' + bn + '>')
 
     def characters(self, content):
         assert not self.in_empty_element
-        self.pieces.append(escape(content))
+        if self.in_hackish_ugly_hateful_cdata:
+            self.pieces.append(content)
+        else:
+            self.pieces.append(escape(content))
     def ignorableWhitespace(self, whitespace):
         assert not self.in_empty_element
         self.pieces.append(whitespace)
