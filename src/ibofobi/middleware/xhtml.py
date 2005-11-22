@@ -7,7 +7,6 @@ from xml.sax.saxutils import escape
 from xml.sax.saxutils import quoteattr
 
 from django.utils.cache import patch_vary_headers
-#from django.conf.settings import DEFAULT_ENCODING
 
 from cStringIO import StringIO
 
@@ -18,7 +17,11 @@ class XHTMLAsHTMLMiddleware:
     """I change XHTML pages into HTML 4.0 Strict for browser which do not
     understand XHTML. I change a Content-Type of application/xhtml+xml into
     text/html, and post-process your XHTML document to produce valid
-    HTML 4.0 Strict."""
+    HTML 4.0 Strict.
+    
+    Beware: This middleware ignores your DCOTYPE, it only looks at your
+    Content-Type header, and it always produces HTML 4.01 Strict. So, do
+    not use it with the frames DOCTYPE (yick!)."""
 
     def process_response(self, request, response):
         if re_ct_xhtml.match(response['Content-Type']):
