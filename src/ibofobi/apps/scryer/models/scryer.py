@@ -57,3 +57,22 @@ class PageView(meta.Model):
 
     def __repr__(self):
         return self.ip_address
+
+class AggregatedReferrer(meta.Model):
+    """I represent an aggregation of several referrers into one meta-referrer,
+    for example I can aggregate all referrals from Google into one, to make your
+    referrer lists easier to read."""
+
+    name = meta.CharField(maxlength=30)
+    href = meta.CharField(maxlength=100)
+    regex = meta.CharField(maxlength=100)
+    ignore = meta.BooleanField(default=False)
+
+    class META:
+        admin = meta.Admin(
+            list_display = ['name', 'regex', 'ignore'],
+            list_filter = ['ignore'],
+        )
+
+    def __str__(self):
+        return self.name

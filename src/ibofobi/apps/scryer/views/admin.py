@@ -16,17 +16,6 @@ def render_to_response(template, request, kwargs):
     ctx = extensions.DjangoContext(request)
     return extensions.render_to_response(template, kwargs, ctx)
 
-meta_referrers = (
-    (None, None,
-        r'^http://([a-z]+\.)?ibofobi\.dk/'),
-    (None, None,
-        r'^(?!http://)'),
-    ('Google', 'http://www.google.com/',
-        r'^http://www\.google\.([a-z]+|[a-z]+\.[a-z]+)/search\?'),
-    ('Bloglines', 'http://www.bloglines.com/',
-        r'^http://(www\.)?bloglines\.com/'),
-)
-
 def index(request):
     return render_to_response('scryer/index', request, {})
 index = staff_member_required(index)
@@ -34,33 +23,36 @@ index = staff_member_required(index)
 def referrers(request):
     if request.GET.has_key('max-age'):
         max_age = int(request.GET['max-age'])
-        max_age = datetime.timedelta(days=max_age)
-        oldest = datetime.datetime.now() - max_age
+        oldest_dt = datetime.datetime.now() - datetime.timedelta(days=max_age)
+        oldest = "now() - interval '%d day'" % max_age
     else:
-        oldest = None
-    
-    referrers = pageviews.get_values(distinct=True, fields=['referrer'],
-                                     referrer__ne='',
-                                     served__gt=oldest)
+        oldest_dt = None
+        oldest = "'-infinity'"
 
-    for ref in referrers:
-        ref['text'] = ref['referrer']
-        ref['url'] = ref['referrer']
-        ref['count'] = pageviews.get_count(referrer__exact=ref['url'],
-                                           served__gt=oldest)
-
-    for text, url, regex in meta_referrers:
-        regex = re.compile(regex)
-        these = [ r for r in referrers if regex.search(r['url']) ]
-        referrers = [ r for r in referrers if not regex.search(r['url']) ]
-        if these and url is not None:
-            referrers.append({'url': url, 'text': text,
-                              'count': sum([ r['count'] for r in these ]) })
-
-    referrers.sort(lambda a, b: cmp(b['count'], a['count']))
+    c = db.cursor()
+    # Pity the database server . . .
+    c.execute('SELECT r.id, r.name, r.href, COUNT(p) '
+              'FROM scryer_pageviews p, scryer_aggregatedreferrers r '
+              'WHERE p.referrer ~ r.regex AND NOT r.ignore '
+              "AND p.served > %s "
+              'GROUP BY r.id, r.name, r.href '
+              'UNION '
+              'SELECT 0, referrer, referrer, COUNT(*) '
+              'FROM scryer_pageviews '
+              'WHERE NOT EXISTS (SELECT * FROM scryer_aggregatedreferrers WHERE referrer ~ regex) '
+              "AND referrer <> '' "
+              "AND served > %s "
+              'GROUP BY referrer '
+              'ORDER BY 4 DESC' % (oldest, oldest))
+    referrers = [ { 'url': r[2],
+                    'text': r[1],
+                    'count': r[3], }
+                  for r in c.fetchall() ]
+    c.close()
 
     return render_to_response('scryer/referrers', request, {
-            'referrers': referrers, 'oldest': oldest, })
+            'referrers': referrers,
+            'oldest': oldest_dt, })
 referrers = staff_member_required(referrers)
 
 def view_session(request, session_key):
