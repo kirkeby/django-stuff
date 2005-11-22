@@ -76,6 +76,7 @@ class HTMLWriter(xml.sax.handler.ContentHandler):
         if not ns == XHTML_NAMESPACE:
             return
 
+        assert not self.in_empty_element
         if bn in EMPTY_HTML_ELEMENTS:
             self.in_empty_element = True
 
@@ -105,10 +106,13 @@ class HTMLWriter(xml.sax.handler.ContentHandler):
         self.pieces.append('</' + bn + '>')
 
     def characters(self, content):
+        assert not self.in_empty_element
         self.pieces.append(escape(content))
     def ignorableWhitespace(self, whitespace):
+        assert not self.in_empty_element
         self.pieces.append(whitespace)
     def skippedEntity(self, name):
+        assert not self.in_empty_element
         self.pieces.append('&%s;' % name)
 
     def startElement(self, name, attrs):
