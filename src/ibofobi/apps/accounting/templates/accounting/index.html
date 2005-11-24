@@ -1,9 +1,0 @@
-{% if account_list %}
-    <ul>
-    {% for account in account_list %}
-        <li><a href='{{ account.path }}/'>{{ account.name }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No accounts are available.</p>
-{% endif %}
