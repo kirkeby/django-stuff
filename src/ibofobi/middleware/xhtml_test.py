@@ -84,3 +84,18 @@ def test_middleware():
     response = XHTMLAsHTMLMiddleware().process_response(request, response)
 
     assert response['Content-Type'] == 'text/html'
+
+def test_middleware_with_ce():
+    class MockResponse(dict):
+        pass
+    
+    request = types.ClassType('MockRequest', (), {})
+    request.META = {'HTTP_ACCEPT': ''}
+    response = MockResponse()
+    response['Content-Type'] = 'application/xhtml+xml'
+    response['Content-Encoding'] = 'gzip'
+    response.content = DOCUMENT_TEMPLATE % ''
+    response.has_header = response.has_key
+    response = XHTMLAsHTMLMiddleware().process_response(request, response)
+
+    assert response['Content-Type'] == 'application/xhtml+xml'

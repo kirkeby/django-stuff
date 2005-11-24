@@ -24,6 +24,9 @@ class XHTMLAsHTMLMiddleware:
     not use it with the frames DOCTYPE (yick!)."""
 
     def process_response(self, request, response):
+        if response.has_header('Content-Encoding'):
+            return response
+
         if re_ct_xhtml.match(response['Content-Type']):
             patch_vary_headers(response, 'Accept')
 
