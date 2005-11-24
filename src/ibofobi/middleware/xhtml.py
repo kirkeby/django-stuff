@@ -56,10 +56,10 @@ def xhtml_to_html(doc):
     return writer.html
 
 XHTML_NAMESPACE = u'http://www.w3.org/1999/xhtml'
-EMPTY_HTML_ELEMENTS = ['link', 'br', 'hr', 'img', 'meta']
+EMPTY_HTML_ELEMENTS = ['link', 'br', 'hr', 'img', 'meta', 'input']
 HACKISH_UGLY_HATEFUL_CDATA = ['style', 'script']
 HTML_DOCTYPE = "<!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01//EN'\n" \
-               "               SYSTEM 'http://www.w3.org/TR/html401/strict.dtd'>"
+               "               'http://www.w3.org/TR/html401/strict.dtd'>"
 class HTMLWriter(xml.sax.handler.ContentHandler):
     """A SAX ContentHandler which produces a HTML 4.01 Strict version
     of the XHTML 1.0 Strict document it is fed. Only tags and attributes
