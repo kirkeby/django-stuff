@@ -43,11 +43,12 @@ by {% if comment.url %}<a href="{{ comment.url|escape }}" rel='nofollow'>{% endi
 <h2>Post comment</h2>
 <div style='width: 17em; float: right;'>Your comment can contain a subset
 of <a href='http://daringfireball.net/projects/markdown/'>Markdown</a>;
-<nobr><code>[A Link](http://example.com/)</code></nobr>, <code>*strong*</code>,
-<code>_emphasis_</code>, <nobr><code>&gt; blockquote</code></nobr>,
+<code>[A Link](http://example.com/)</code>, <code>*strong*</code>,
+<code>_emphasis_</code>, <code>&gt; blockquote</code>,
 <code>`code`</code>, code blocks and normal paragraphs.</div>
 
 <form method='post' action='preview-comment/'>
+<div>
 <label for='id_name'>Your Name (Required):</label><br />
 <input id='id_name' name='name'
        {% if user.is_staff %}value='{{ user.first_name }} {{ user.last_name }}'{% endif %}/><br />
@@ -56,7 +57,8 @@ of <a href='http://daringfireball.net/projects/markdown/'>Markdown</a>;
 <label for='id_url'>Your URL (Optional):</label><br />
 <input style='width: 80%; clear: both;' id='id_url' name='url' /><br />
 <label for='id_content'>Comment:</label><br />
-<textarea style='width: 80%; height: 20em; clear: both;' id='id_content' name='content'></textarea><br />
+<textarea rows='20' cols='60' style='width: 80%; height: 20em; clear: both;' id='id_content' name='content'></textarea><br />
 <input type='submit' value='Preview Comment' />
+</div>
 </form>
 {% endblock %}
