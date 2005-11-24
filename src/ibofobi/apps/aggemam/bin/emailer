@@ -22,6 +22,6 @@ for user in users.get_list():
             txt = template.render(Context(locals()))
             server.sendmail(sender, user.email, txt)
 
-        post.add_userpostmark(user, 'rd')
+        post.add_userpostmark(user.id, 'rd')
 if do_send_mail:
     server.quit()
