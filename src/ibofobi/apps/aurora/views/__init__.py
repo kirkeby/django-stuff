@@ -25,7 +25,7 @@ AURORA_FETCHER_COMMAND = '/home/sune/bin/shell/aurora-fetcher'
 
 def index(request):
     return render_to_response('aurora/index', {
-            'torrents': torrents.get_list(),
+            'torrents': torrents.get_list(order_by=['-created']),
             'fetchers': fetchers.get_list(),
             'aurora_messages': messages.get_list(order_by=['-logged'], limit=7),
         })
