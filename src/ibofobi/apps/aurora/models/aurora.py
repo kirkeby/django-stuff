@@ -74,7 +74,6 @@ class Metainfo(meta.Model):
     metainfo = meta.TextField()
 
     # Cached from the parsed metainfo, filled in by _pre_save
-    infohash = meta.CharField(maxlength=40)
     total_bytes = meta.IntegerField()
 
     def get_parsed(self):
@@ -96,7 +95,6 @@ class Metainfo(meta.Model):
     def _pre_save(self):
         p = self.get_parsed()
         self.total_bytes = p.total_bytes
-        self.infohash = base64.encodestring(p.infohash)
 
     def __getattr__(self, *args):
         p = self.get_parsed()
