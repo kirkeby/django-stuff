@@ -96,6 +96,9 @@ class Metainfo(meta.Model):
         p = self.get_parsed()
         self.total_bytes = p.total_bytes
 
+    def __repr__(self):
+        return 'Meta-info for torrent %d' % self.torrent_id
+
     def __getattr__(self, *args):
         p = self.get_parsed()
         return getattr(p, *args)
@@ -127,9 +130,6 @@ class Fetcher(meta.Model):
         import os, signal
         os.kill(self.process_id, signal.SIGTERM)
 
-    class META:
-        admin = meta.Admin()
-
 MESSAGE_SEVERITIES = (
     ('dbg', 'Debug'),
     ('inf', 'Informational'),
@@ -141,9 +141,6 @@ class Message(meta.Model):
     logged = meta.DateTimeField(auto_now_add=True)
     severity = meta.CharField(maxlength=3, choices=MESSAGE_SEVERITIES)
     content = meta.TextField()
-
-    class META:
-        admin = meta.Admin()
 
     def _module_debug(torrent, content):
         Message(torrent=torrent, severity='dbg', content=content.strip()).save()
