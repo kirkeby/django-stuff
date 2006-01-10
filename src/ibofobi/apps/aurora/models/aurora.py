@@ -75,6 +75,7 @@ class Metainfo(meta.Model):
 
     # Cached from the parsed metainfo, filled in by _pre_save
     total_bytes = meta.IntegerField()
+    name_fs = meta.TextField()
 
     def get_parsed(self):
         """Return the parsed metainfo (BitTorrent.ConvertedMetainfo)."""
@@ -95,6 +96,7 @@ class Metainfo(meta.Model):
     def _pre_save(self):
         p = self.get_parsed()
         self.total_bytes = p.total_bytes
+        self.name_fs = p.name_fs
 
     def __repr__(self):
         return 'Meta-info for torrent %d' % self.torrent_id
