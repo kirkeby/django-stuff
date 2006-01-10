@@ -12,7 +12,7 @@ TORRENT_STATUS = (
 )
 class Torrent(meta.Model):
     """I hold the persistent information of a torrent."""
-    name = meta.CharField(maxlength=50)
+    name = meta.TextField()
     status = meta.CharField(maxlength=2, choices=TORRENT_STATUS, default='wk')
 
     downloaded = meta.IntegerField(default=0)

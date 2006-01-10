@@ -108,8 +108,7 @@ def main(seen_path, login, password):
             continue
 
         # Create (paused) torrent in aurora
-        name = '%s -- %s' % (tag.string, show.string)
-        name = name[:50] # FIXME
+        name = '%s - %s' % (show.string, tag.string)
 
         torrent = torrents.Torrent(name=name)
         torrent.status = 'pa'
