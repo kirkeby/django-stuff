@@ -76,3 +76,19 @@ class AggregatedReferrer(meta.Model):
 
     def __str__(self):
         return self.name
+
+class SearchEngine(meta.Model):
+    """I represent a search-engine."""
+
+    name = meta.CharField(maxlength=30)
+    href = meta.CharField(maxlength=100)
+    regex = meta.CharField(maxlength=100)
+
+    class META:
+        admin = meta.Admin(
+            list_display = ['name', 'regex', 'ignore'],
+            list_filter = ['ignore'],
+        )
+
+    def __str__(self):
+        return self.name

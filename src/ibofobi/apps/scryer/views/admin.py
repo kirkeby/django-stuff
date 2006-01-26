@@ -62,6 +62,41 @@ def view_session(request, session_key):
     return render_to_response('scryer/view_session', request, session)
 view_session = staff_member_required(view_session)
 
+def searches(request):
+    if request.GET.has_key('max-age'):
+        max_age = int(request.GET['max-age'])
+        oldest_dt = datetime.datetime.now() - datetime.timedelta(days=max_age)
+        oldest = "now() - interval '%d day'" % max_age
+    else:
+        oldest_dt = None
+        oldest = "'-infinity'"
+
+    c = db.cursor()
+    # Pity the database server . . .
+    c.execute('SELECT s.id, s.name, s.href '
+              'FROM scryer_pageviews p, scryer_searchengines s '
+              'WHERE p.referrer ~ r.regex AND NOT r.ignore '
+              "AND p.served > %s "
+              'GROUP BY r.id, r.name, r.href '
+              'UNION '
+              'SELECT 0, referrer, referrer, COUNT(*) '
+              'FROM scryer_pageviews '
+              'WHERE NOT EXISTS (SELECT * FROM scryer_aggregatedreferrers WHERE referrer ~ regex) '
+              "AND referrer <> '' "
+              "AND served > %s "
+              'GROUP BY referrer '
+              'ORDER BY 4 DESC' % (oldest, oldest))
+    referrers = [ { 'url': r[2],
+                    'text': r[1],
+                    'count': r[3], }
+                  for r in c.fetchall() ]
+    c.close()
+
+    return render_to_response('scryer/referrers', request, {
+            'referrers': referrers,
+            'oldest': oldest_dt, })
+referrers = staff_member_required(referrers)
+
 def top_pages(request):
     if request.GET.has_key('max-age'):
         max_age = int(request.GET['max-age'])
