@@ -15,6 +15,7 @@ from BitTorrent.download import Multitorrent
 from ibofobi.apps.aurora.utils import bittorrent
 
 import os
+import re
 import sys
 import threading
 import datetime
@@ -32,6 +33,10 @@ activity_status = {
     'downloading': 'dl',
     'seeding': 'sd',
 }
+
+errors_to_ignore = [
+    re.compile(r'Tracker announce still not complete \d+ seconds after starting it'),
+]
 
 def main(t_id):
     os.chdir(AURORA_DOWNLOAD_DIRECTORY)
@@ -131,6 +136,9 @@ class Downloader(Feedback):
         messages.error(self.torrent, text)
 
     def error(self, torrent, level, text):
+        for regex in errors_to_ignore:
+            if regex.match(text):
+                return
         messages.error(self.torrent, text)
 
     def failed(self, torrent, is_external):
