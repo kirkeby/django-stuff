@@ -45,7 +45,7 @@ def process_updates():
                 feed.update = False
                 feed.save()
                 print 'Feed update %d (http://admin.ibofobi.dk/aggemam/feedupdates/%d/)' % (update.id, update.id)
-                print 'has an unknown HTTP status code (%d), needs manual handling.'
+                print 'has an unknown HTTP status code (%d), needs manual handling.' % (update.http_status_code,)
                 print 'Disabling update of feed (http://admin.ibofobi.dk/aggemam/feeds/%d/)' % (feed.id,)
                 print
             else:
