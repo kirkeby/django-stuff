@@ -1,4 +1,4 @@
-Subject: {{ post.title|striptags }}
+Subject: {% load email %}{{ post.title|striptags|indent_lines }}
 Date: {{ post.posted|date:"D, d M Y H:i:s T" }}
 From: "{{ post.get_feed.title }}" <aggemam@ibofobi.dk>
 To: <{{ user.email }}>
