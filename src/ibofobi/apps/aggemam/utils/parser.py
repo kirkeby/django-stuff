@@ -43,8 +43,10 @@ def sanitize_guid(post):
         return post['id'].encode('utf-8')
     elif post.has_key('link'):
         return post['link'].encode('utf-8')
+    elif post['links']:
+        return 'tag:aggemam.ibofobi.dk,' + post['links'][0]['href']
     else:
-        raise AssertionError, `post`
+        raise AssertionError, `post.keys()`
 
 def sanitize_timestamp(post, name):
     parsed = post.get(name + '_parsed')
@@ -72,12 +74,25 @@ def sanitize_field(post, name):
     return sanitize_detailed(detailed)
 
 def sanitize_links(links):
-    return [ {
-        'href': link['href'].encode('utf-8'),
-        'title': link.get('title', '').encode('utf-8'),
-        'type': link.get('type', '').encode('utf-8'),
-        'rel': link.get('rel', '').encode('utf-8'),
-    } for link in links ]
+    sanitized = []
+    for link in links:
+        try:
+            sanitized.append({
+                'href': link['href'].encode('utf-8'),
+                'title': link.get('title', '').encode('utf-8'),
+                'type': link.get('type', '').encode('utf-8'),
+                'rel': link.get('rel', '').encode('utf-8'),
+            })
+
+        except KeyError:
+            # FIXME --  log.warning
+            pass
+
+        except UnicodeDecodeError:
+            # FIXME --  log.warning
+            pass
+
+    return sanitized
 
 def sanitize_detailed(field):
     if not field:
