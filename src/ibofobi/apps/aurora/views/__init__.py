@@ -70,6 +70,7 @@ def add(request):
     if request.POST:
         errors = {}
 
+        paused = request.POST.has_key('paused')
         url = request.POST['url']
         if url:
             try:
@@ -100,6 +101,8 @@ def add(request):
 
         else:
             t = torrents.Torrent(name=name)
+            if paused:
+                t.status = 'pa'
             t.save()
             m = metainfos.Metainfo(torrent=t, metainfo=base64.encodestring(content))
             m.save()

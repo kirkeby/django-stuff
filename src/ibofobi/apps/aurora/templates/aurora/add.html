@@ -23,6 +23,16 @@
 <label for='id_torrent'>Torrent file:</label>
 <input name='torrent' id='id_torrent' type='file' />
 </div>
+
+<div class='form-row {% if errors.paused %}error{% endif %}'>
+{% if errors.paused %}
+<ul class='errorlist'>
+{% for error in errors.paused %}<li>{{ error }}</li>{% endfor %}
+</ul>
+{% endif %}
+<label for='id_paused'>Paused:</label>
+<input name='paused' id='id_paused' type='checkbox' value='True' />
+</div>
 </fieldset>
 
 <input type='submit' value='Add Torrent' />
