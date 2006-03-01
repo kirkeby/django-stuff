@@ -104,8 +104,8 @@ def get_month_matrix(year, month):
     # set time_epoch to the first day in the matrix
     time_epoch = time.mktime((year, month, 1, 0, 0, 0, 0, 0, -1))
     time_tuple = time.localtime(time_epoch) # fills in weekday
-    time_epoch = time_epoch - 24 * 60 * 60 * time_tuple[6]
     end_time = end_of_month(time_epoch)
+    time_epoch = time_epoch - 24 * 60 * 60 * time_tuple[6]
     
     # create matrix
     matrix = []
