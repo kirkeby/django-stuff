@@ -7,10 +7,14 @@ import datetime
 now = datetime.datetime.now()
 max_age = datetime.timedelta(days=1)
 
+feedupdate_status_to_clean = ['ok', 'no', 'rm']
+
 old = messages.get_list(happened__lt=now - max_age)
 for m in old:
     m.delete()
 
-old = feedupdates.get_list(fetched__lt=now - max_age, processed__exact=True)
+old = feedupdates.get_list(fetched__lt=now - max_age,
+                           processed__exact=True,
+                           result__in=feedupdate_status_to_clean)
 for u in old:
     u.delete()
