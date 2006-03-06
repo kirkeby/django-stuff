@@ -166,9 +166,10 @@ def preview_comment(request, year, month, day, slug):
     else:
         comment.ip_address = '0.0.0.0'
     
-    comment.email = request.POST['email']
-    comment.url = request.POST['url']
-    comment.content = safe_markdown.render(request.POST['content'])
+    comment.email = request.POST.get('email', '')
+    comment.url = request.POST.get('url', '')
+    content = request.POST.get('content', '')
+    comment.content = safe_markdown.render(content)
 
     comment.save()
 
