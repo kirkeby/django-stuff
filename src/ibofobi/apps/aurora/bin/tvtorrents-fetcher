@@ -68,7 +68,18 @@ class TvTorrentsSession:
         else:
             return resp.read()
 
-def main(seen_path, login, password):
+def load_into_aurora(seen, tvtorrents):
+    # Create (paused) torrent in aurora
+    name = '%s - %s' % (show.string, tag.string)
+
+    torrent = torrents.Torrent(name=name)
+    torrent.status = 'pa'
+    torrent.save()
+    
+    metainfo = metainfos.Metainfo(torrent=torrent, metainfo=base64.encodestring(torrent_data))
+    metainfo.save()
+
+def main(seen_path, login, password, callback):
     # Load list of seen torrents
     seen = {}
     seen_file = open(seen_path)
@@ -107,20 +118,15 @@ def main(seen_path, login, password):
             print 'Failed getting "%s"' % infohash
             continue
 
-        # Create (paused) torrent in aurora
-        name = '%s - %s' % (show.string, tag.string)
+        # Do the thang, dawg!
+        callback(show, tag, torrent_data)
 
-        torrent = torrents.Torrent(name=name)
-        torrent.status = 'pa'
-        torrent.save()
-        
-        metainfo = metainfos.Metainfo(torrent=torrent, metainfo=base64.encodestring(torrent_data))
-        metainfo.save()
-
+        # Mental note to self
         seen[infohash] = True
         seen_file.write(infohash + '\n')
 
+        # Record that we fetched it
         print name
 
 if __name__ == '__main__':
-    main(*(sys.argv[1:]))
+    main(*(sys.argv[1:]), callback=load_into_aurora)
